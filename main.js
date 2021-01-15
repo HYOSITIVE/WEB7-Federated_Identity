@@ -1,12 +1,12 @@
 var http = require('http');
 var fs = require('fs');
-var url = require('url');
+var url = require('url'); // url이라는 모듈은 url이라는 변수를 통해 사용할 것이다.
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
 	// query string의 값이 request.url에 들어감
-	// console.log(_url); : 출력 시 ?id=HTML 과 같은 값 출력
+	// console.log(_url); : 출력 시 /?id=HTML 과 같은 값 출력
 	var queryData = url.parse(_url, true).query;
 	// url parsing을 통해 원하는 query string 데이터 획득. queryData에 들어있는 값은 객체 형태
 	// console.log(queryData.id); : 출력 시 queryData의 id값을 출력
