@@ -1,3 +1,7 @@
+// Last Modification : 2021.01.16
+// by HYOSITIVE
+// based on WEB2 - Node.js - 22
+
 var number = [1, 400, 12, 34];
 var i = 0;
 var total = 0;

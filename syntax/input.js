@@ -1,5 +1,9 @@
-var args = process.argv;
-console.log(args[2]);
+// Last Modification : 2021.01.16
+// by HYOSITIVE
+// based on WEB2 - Node.js - 18
+
+var args = process.argv; // 사용자 입력값 배열에 저장
+console.log(args);
 console.log('A');
 console.log('B');
 if (args[2] === '1') {
