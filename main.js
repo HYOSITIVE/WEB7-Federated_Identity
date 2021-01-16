@@ -7,6 +7,36 @@ var fs = require('fs');
 var url = require('url'); // url이라는 모듈은 url이라는 변수를 통해 사용할 것이다.
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 
+function templateHTML(title, list, body) {
+	return `
+	<!doctype html>
+	<html>
+	<head>
+	  <title>WEB1 - ${title}</title>
+	  <meta charset="utf-8">
+	</head>
+	<body>
+	  <h1><a href="/">WEB</a></h1>
+	  ${list}
+	  ${body}
+	</body>
+	</html>
+	`;
+}
+
+function templateList(filelist) {
+	// filelist를 활용해 list 자동 생성
+	var list = '<ul>';
+	var i = 0;
+	while(i < filelist.length) {
+		list = list + `<li><a
+		href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
+		i = i + 1;
+	}
+	list = list + '</ul>';
+	return list;
+}
+
 var app = http.createServer(function(request,response){
     var _url = request.url;
 	/*
@@ -31,32 +61,8 @@ var app = http.createServer(function(request,response){
 			fs.readdir('./data', function(error, filelist) {
 				var title = 'Welcome';
 				var description = 'Hello, Node.js';
-
-				// filelist를 활용해 list 자동 생성
-				var list = '<ul>';
-				var i = 0;
-				while(i < filelist.length) {
-					list = list + `<li><a
-					href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-					i = i + 1;
-				}
-				list = list + '</ul>';
-
-				var template = `
-				<!doctype html>
-				<html>
-				<head>
-				  <title>WEB1 - ${title}</title>
-				  <meta charset="utf-8">
-				</head>
-				<body>
-				  <h1><a href="/">WEB</a></h1>
-				  ${list}
-				  <h2>${title}</h2>
-				  <p>${description}</p>
-				</body>
-				</html>
-				`;
+				var list = templateList(filelist);
+				var template = templateHTML(title, list, `<h2>${title}</h2>${description}`);
 				response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 				// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
 				// response.end(fs.readFileSync(__dirname + _url)); : 사용자가 접근할 때마다 파일을 읽음
@@ -64,34 +70,11 @@ var app = http.createServer(function(request,response){
 			});
 			
 		} else { // 메인 페이지 아닐 경우
-			fs.readdir('./data', function(error, filelist) {
-				// filelist를 활용해 list 자동 생성
-				var list = '<ul>';
-				var i = 0;
-				while(i < filelist.length) {
-					list = list + `<li><a
-					href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-					i = i + 1;
-				}
-				list = list + '</ul>';
-				
+			fs.readdir('./data', function(error, filelist) {			
 				fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
 					var title = queryData.id;
-					var template = `
-					<!doctype html>
-					<html>
-					<head>
-					  <title>WEB1 - ${title}</title>
-					  <meta charset="utf-8">
-					</head>
-					<body>
-					  <h1><a href="/">WEB</a></h1>
-					  ${list}
-					  <h2>${title}</h2>
-					  <p>${description}</p>
-					</body>
-					</html>
-					`;
+					var list = templateList(filelist);
+					var template = templateHTML(title, list, `<h2>${title}</h2>${description}`);
 					response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 					// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
 					// response.end(fs.readFileSync(__dirname + _url)); : 사용자가 접근할 때마다 파일을 읽음
