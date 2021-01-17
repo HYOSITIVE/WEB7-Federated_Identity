@@ -1,0 +1,24 @@
+<!--
+Last Modification : 2021.01.17
+by HYOSITIVE
+based on WEB2 - Node.js - 28.2
+-->
+
+<form action="http://localhost:3000/process_create" method="post">
+    <p><input type ="text" name="title"></p>
+    <p>
+        <textarea name="description"></textarea>
+    </p>
+    <p>
+        <input type="submit">
+    </p>
+</form>
+
+<!--
+form 태그는 form 안의 각각의 control들에 사용자가 입력한 정보를 submit 버튼을 눌렀을 때, action 속성이 가리키는 서버로 queryString의 형태로 데이터 전송 
+하지만, 사용자가 글을 작성, 수정, 삭제할 때 주소에 데이터가 포함되어 있다면, 특정 주소로 다른 유저가 접속할 경우, 서버의 정보가 변경될 수 있다.
+결론적으로, 서버에서 데이터를 가져올 때(get)는 queryString을 사용하고, 서버의 데이터를 생성, 수정, 삭제할 때는 데이터를 url로 보내서는 안된다.
+
+서버로부터 사용자가 데이터를 가져올 때는 method="get"으로 명시하거나, method를 생략한다.
+서버의 데이터를 생성, 수정, 삭제할 때는 method="post"로 명시해야 한다.
+-->

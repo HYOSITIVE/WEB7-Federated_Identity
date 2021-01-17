@@ -1,4 +1,4 @@
-// Last Modification : 2021.01.16
+// Last Modification : 2021.01.17
 // by HYOSITIVE
 // based on WEB2 - Node.js
 
@@ -6,6 +6,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url'); // url이라는 모듈은 url이라는 변수를 통해 사용할 것이다.
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
+var qs = require('querystring');
 
 function templateHTML(title, list, body) {
 	return `
@@ -18,6 +19,7 @@ function templateHTML(title, list, body) {
 	<body>
 	  <h1><a href="/">WEB</a></h1>
 	  ${list}
+	  <a href="/create">create</a>
 	  ${body}
 	</body>
 	</html>
@@ -82,8 +84,46 @@ var app = http.createServer(function(request,response){
 				});
 			});
 		}	
+
+	}
+
+	else if(pathname === '/create') {
+		fs.readdir('./data', function(error, filelist) {
+			var title = 'WEB - create';
+			var list = templateList(filelist);
+			var template = templateHTML(title, list, `
+			<form action="http://localhost:3000/create_process" method="post">
+				<p><input type ="text" name="title" placeholder="title"></p>
+				<p>
+					<textarea name="description" placeholder="description"></textarea>
+				</p>
+				<p>
+					<input type="submit">
+				</p>
+			</form>
+			`);
+			response.writeHead(200); 
+			response.end(template);
+		});
+	}
+
+	else if(pathname === '/create_process') {
+		var body = '';
+		// 데이터의 조각을 서버쪽에서 수신할 때마다, 서버는 callback 함수를 호출, data 파라미터를 통해 수신한 정보 제공
+		request.on('data', function(data) {
+			body = body + data; // callback이 실행될 때마다 데이터 추가
+		});
+		// 더 이상 들어올 정보가 없을 때, end에 해당되는 callback 함수 호출, 정보 수신이 끝났다는 뜻
+		request.on('end', function() {
+			var post = qs.parse(body); // post 데이터에 post 정보를 저장 (정보를 객체화)
+			var title = post.title;
+			var description = post.description;
+			console.log(post);
+		});
+	}
+
 	// 그 외의 경로로 접속했을 때 - 에러
-	} else {
+	else {
 		response.writeHead(404); // 404 : 파일을 찾을 수 없다.
 		response.end('Not found');
 	}
