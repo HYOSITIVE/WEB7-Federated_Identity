@@ -1,4 +1,4 @@
-// Last Modification : 2021.01.17
+// Last Modification : 2021.01.18
 // by HYOSITIVE
 // based on WEB2 - Node.js
 
@@ -118,7 +118,11 @@ var app = http.createServer(function(request,response){
 			var post = qs.parse(body); // post 데이터에 post 정보를 저장 (정보를 객체화)
 			var title = post.title;
 			var description = post.description;
-			console.log(post);
+			// 입력한 데이터로 파일 생성, callback 함수 호출
+			fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
+				response.writeHead(302, {Location: `/?id=${title}`}); // redirection
+				response.end();
+			});
 		});
 	}
 
