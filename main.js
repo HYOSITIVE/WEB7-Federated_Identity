@@ -1,6 +1,6 @@
 // Last Modification : 2021.01.18
 // by HYOSITIVE
-// based on WEB2 - Node.js - 36
+// based on WEB2 - Node.js - 37, 38
 
 var http = require('http');
 var fs = require('fs');
@@ -74,14 +74,25 @@ var app = http.createServer(function(request,response){
 				response.end(template);
 			});
 			
-		} else { // 메인 페이지 아닐 경우
+		}
+		
+		else { // 컨텐츠를 선택한 경우
 			fs.readdir('./data', function(error, filelist) {			
 				fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
 					var title = queryData.id;
 					var list = templateList(filelist);
 					var template = templateHTML(title, list,
+						/*
+						delete 기능은 link로 구현하면 안된다. update 기능에서 post를 사용한 것과 같은 이유
+						querystring이 포함된 delete 링크로 컨텐츠 임의 삭제가 가능하기 때문
+						*/
 						`<h2>${title}</h2>${description}`,
-						`<a href="/create">create</a> <a href="/update?id=${title}">update</a>` // home이 아닐 경우 update 기능 존재, 수정할 파일 명시 위해 id 제공
+						` <a href="/create">create</a>
+						  <a href="/update?id=${title}">update</a>
+						  <form action="delete_process" method="post">
+							  <input type="hidden" name="id" value="${title}">
+							  <input type="submit" value="delete">			
+						  </form>`
 						);
 					response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 					// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
@@ -93,7 +104,8 @@ var app = http.createServer(function(request,response){
 
 	}
 
-	else if(pathname === '/create') {
+	// 새로운 컨텐츠 생성
+	else if(pathname === '/create') { 
 		fs.readdir('./data', function(error, filelist) {
 			var title = 'WEB - create';
 			var list = templateList(filelist);
@@ -113,7 +125,8 @@ var app = http.createServer(function(request,response){
 		});
 	}
 
-	else if(pathname === '/create_process') {
+	// 컨텐츠 생성 작업
+	else if(pathname === '/create_process') { 
 		var body = '';
 		// 데이터의 조각을 서버쪽에서 수신할 때마다, 서버는 callback 함수를 호출, data parameter를 통해 수신한 정보 제공
 		request.on('data', function(data) {
@@ -132,7 +145,8 @@ var app = http.createServer(function(request,response){
 		});
 	}
 
-	else if(pathname === '/update') {
+	// 업데이트
+	else if(pathname === '/update') { 
 		fs.readdir('./data', function(error, filelist) {			
 			fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
 				var title = queryData.id;
@@ -163,7 +177,8 @@ var app = http.createServer(function(request,response){
 		});
 	}
 
-	else if(pathname === '/update_process') {
+	// 업데이트 작업
+	else if(pathname === '/update_process') { 
 		var body = '';
 		request.on('data', function(data) {
 			body = body + data;
@@ -179,6 +194,22 @@ var app = http.createServer(function(request,response){
 					response.writeHead(302, {Location: `/?id=${title}`}); // redirection
 					response.end();
 				});
+			});
+		});
+	}
+
+	// 삭제
+	else if(pathname === '/delete_process') { 
+		var body = '';
+		request.on('data', function(data) {
+			body = body + data;
+		});
+		request.on('end', function() {
+			var post = qs.parse(body);
+			var id = post.id;
+			fs.unlink(`data/${id}`, function(error) {
+				response.writeHead(302, {Location: `/`}); // Home으로 Redirection
+					response.end();
 			});
 		});
 	}
