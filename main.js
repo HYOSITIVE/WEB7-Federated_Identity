@@ -1,6 +1,6 @@
 // Last Modification : 2021.01.18
 // by HYOSITIVE
-// based on WEB2 - Node.js
+// based on WEB2 - Node.js - 34
 
 var http = require('http');
 var fs = require('fs');
@@ -8,7 +8,7 @@ var url = require('url'); // url이라는 모듈은 url이라는 변수를 통�
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 var qs = require('querystring');
 
-function templateHTML(title, list, body) {
+function templateHTML(title, list, body, control) { // update 기능을 위해 control이라는 parameter 추가
 	return `
 	<!doctype html>
 	<html>
@@ -19,7 +19,7 @@ function templateHTML(title, list, body) {
 	<body>
 	  <h1><a href="/">WEB</a></h1>
 	  ${list}
-	  <a href="/create">create</a>
+	  ${control}
 	  ${body}
 	</body>
 	</html>
@@ -64,7 +64,10 @@ var app = http.createServer(function(request,response){
 				var title = 'Welcome';
 				var description = 'Hello, Node.js';
 				var list = templateList(filelist);
-				var template = templateHTML(title, list, `<h2>${title}</h2>${description}`);
+				var template = templateHTML(title, list,
+					`<h2>${title}</h2>${description}`,
+					`<a href="/create">create</a>` // home에서는 update 기능 존재하지 않음
+					);
 				response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 				// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
 				// response.end(fs.readFileSync(__dirname + _url)); : 사용자가 접근할 때마다 파일을 읽음
@@ -76,7 +79,10 @@ var app = http.createServer(function(request,response){
 				fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
 					var title = queryData.id;
 					var list = templateList(filelist);
-					var template = templateHTML(title, list, `<h2>${title}</h2>${description}`);
+					var template = templateHTML(title, list,
+						`<h2>${title}</h2>${description}`,
+						`<a href="/create">create</a> <a href="/update?id=${title}">update</a>` // home이 아닐 경우 update 기능 존재, 수정할 파일 명시 위해 id 제공
+						);
 					response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 					// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
 					// response.end(fs.readFileSync(__dirname + _url)); : 사용자가 접근할 때마다 파일을 읽음
@@ -101,7 +107,7 @@ var app = http.createServer(function(request,response){
 					<input type="submit">
 				</p>
 			</form>
-			`);
+			`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
 			response.writeHead(200); 
 			response.end(template);
 		});
@@ -109,7 +115,7 @@ var app = http.createServer(function(request,response){
 
 	else if(pathname === '/create_process') {
 		var body = '';
-		// 데이터의 조각을 서버쪽에서 수신할 때마다, 서버는 callback 함수를 호출, data 파라미터를 통해 수신한 정보 제공
+		// 데이터의 조각을 서버쪽에서 수신할 때마다, 서버는 callback 함수를 호출, data parameter를 통해 수신한 정보 제공
 		request.on('data', function(data) {
 			body = body + data; // callback이 실행될 때마다 데이터 추가
 		});
