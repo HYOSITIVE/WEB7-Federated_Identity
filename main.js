@@ -1,10 +1,10 @@
 // Last Modification : 2021.01.18
 // by HYOSITIVE
-// based on WEB2 - Node.js - 35
+// based on WEB2 - Node.js - 36
 
 var http = require('http');
 var fs = require('fs');
-var url = require('url'); // url이라는 모듈은 url이라는 변수를 통해 사용할 것이다.
+var url = require('url'); // url이라는 모듈은 url이라는 변수를 통해 사용
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 var qs = require('querystring');
 
@@ -159,6 +159,26 @@ var app = http.createServer(function(request,response){
 					);
 				response.writeHead(200);
 				response.end(template);
+			});
+		});
+	}
+
+	else if(pathname === '/update_process') {
+		var body = '';
+		request.on('data', function(data) {
+			body = body + data;
+		});
+		request.on('end', function() {
+			var post = qs.parse(body);
+			var id = post.id;
+			var title = post.title;
+			var description = post.description;
+			// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
+			fs.rename(`data/${id}`, `data/${title}`, function(error) {
+				fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
+					response.writeHead(302, {Location: `/?id=${title}`}); // redirection
+					response.end();
+				});
 			});
 		});
 	}
