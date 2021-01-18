@@ -1,6 +1,6 @@
 // Last Modification : 2021.01.18
 // by HYOSITIVE
-// based on WEB2 - Node.js - 34
+// based on WEB2 - Node.js - 35
 
 var http = require('http');
 var fs = require('fs');
@@ -98,7 +98,7 @@ var app = http.createServer(function(request,response){
 			var title = 'WEB - create';
 			var list = templateList(filelist);
 			var template = templateHTML(title, list, `
-			<form action="http://localhost:3000/create_process" method="post">
+			<form action="/create_process" method="post">
 				<p><input type ="text" name="title" placeholder="title"></p>
 				<p>
 					<textarea name="description" placeholder="description"></textarea>
@@ -128,6 +128,37 @@ var app = http.createServer(function(request,response){
 			fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
 				response.writeHead(302, {Location: `/?id=${title}`}); // redirection
 				response.end();
+			});
+		});
+	}
+
+	else if(pathname === '/update') {
+		fs.readdir('./data', function(error, filelist) {			
+			fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+				var title = queryData.id;
+				var list = templateList(filelist);
+				var template = templateHTML(title, list,
+					/*
+					form을 수정 해 update 기능 구현
+					파일 이름 수정을 대비해 사용자가 수정하는 정보(원본 파일명)와 우리가 수정하고자 하는 정보(변경된 파일명)를 구분해서 전송
+					HTML의 hidden type을 활용. hidden type 태그의 id에 원본 파일명 저장
+					*/
+					`
+					<form action="/update_process" method="post">
+						<input type="hidden" name="id" value="${title}">
+						<p><input type ="text" name="title" placeholder="title" value="${title}"></p>
+						<p>
+							<textarea name="description" placeholder="description">${description}</textarea>
+						</p>
+						<p>
+							<input type="submit">
+						</p>
+					</form>
+					`,
+					`<a href="/create">create</a> <a href="/update?id=${title}">update</a>` // home이 아닐 경우 update 기능 존재, 수정할 파일 명시 위해 id 제공
+					);
+				response.writeHead(200);
+				response.end(template);
 			});
 		});
 	}
