@@ -1,6 +1,6 @@
-// Last Modification : 2021.01.18
+// Last Modification : 2021.01.23
 // by HYOSITIVE
-// based on WEB2 - Node.js - 37, 38
+// based on WEB2 - Node.js - 43
 
 var http = require('http');
 var fs = require('fs');
@@ -8,35 +8,37 @@ var url = require('url'); // url이라는 모듈은 url이라는 변수를 통�
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 var qs = require('querystring');
 
-function templateHTML(title, list, body, control) { // update 기능을 위해 control이라는 parameter 추가
-	return `
-	<!doctype html>
-	<html>
-	<head>
-	  <title>WEB1 - ${title}</title>
-	  <meta charset="utf-8">
-	</head>
-	<body>
-	  <h1><a href="/">WEB</a></h1>
-	  ${list}
-	  ${control}
-	  ${body}
-	</body>
-	</html>
-	`;
-}
-
-function templateList(filelist) {
-	// filelist를 활용해 list 자동 생성
-	var list = '<ul>';
-	var i = 0;
-	while(i < filelist.length) {
-		list = list + `<li><a
-		href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-		i = i + 1;
+// refactoring
+var template = {
+	HTML:function(title, list, body, control) { // update 기능을 위해 control이라는 parameter 추가
+		return `
+		<!doctype html>
+		<html>
+		<head>
+		  <title>WEB1 - ${title}</title>
+		  <meta charset="utf-8">
+		</head>
+		<body>
+		  <h1><a href="/">WEB</a></h1>
+		  ${list}
+		  ${control}
+		  ${body}
+		</body>
+		</html>
+		`;
+	},
+	list:function(filelist) {
+		// filelist를 활용해 list 자동 생성
+		var list = '<ul>';
+		var i = 0;
+		while(i < filelist.length) {
+			list = list + `<li><a
+			href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
+			i = i + 1;
+		}
+		list = list + '</ul>';
+		return list;
 	}
-	list = list + '</ul>';
-	return list;
 }
 
 var app = http.createServer(function(request,response){
@@ -63,15 +65,16 @@ var app = http.createServer(function(request,response){
 			fs.readdir('./data', function(error, filelist) {
 				var title = 'Welcome';
 				var description = 'Hello, Node.js';
-				var list = templateList(filelist);
-				var template = templateHTML(title, list,
+
+				var list = template.list(filelist);
+				var html = template.HTML(title, list,
 					`<h2>${title}</h2>${description}`,
 					`<a href="/create">create</a>` // home에서는 update 기능 존재하지 않음
 					);
 				response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 				// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
 				// response.end(fs.readFileSync(__dirname + _url)); : 사용자가 접근할 때마다 파일을 읽음
-				response.end(template);
+				response.end(html);
 			});
 			
 		}
@@ -80,8 +83,8 @@ var app = http.createServer(function(request,response){
 			fs.readdir('./data', function(error, filelist) {			
 				fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
 					var title = queryData.id;
-					var list = templateList(filelist);
-					var template = templateHTML(title, list,
+					var list = template.list(filelist);
+					var html = template.HTML(title, list,
 						/*
 						delete 기능은 link로 구현하면 안된다. update 기능에서 post를 사용한 것과 같은 이유
 						querystring이 포함된 delete 링크로 컨텐츠 임의 삭제가 가능하기 때문
@@ -97,7 +100,7 @@ var app = http.createServer(function(request,response){
 					response.writeHead(200); // 200 : 파일을 정상적으로 전송했다.
 					// console.log(__dirname + _url); : 디렉토리와 query string의 값 출력
 					// response.end(fs.readFileSync(__dirname + _url)); : 사용자가 접근할 때마다 파일을 읽음
-					response.end(template);
+					response.end(html);
 				});
 			});
 		}	
@@ -108,8 +111,8 @@ var app = http.createServer(function(request,response){
 	else if(pathname === '/create') { 
 		fs.readdir('./data', function(error, filelist) {
 			var title = 'WEB - create';
-			var list = templateList(filelist);
-			var template = templateHTML(title, list, `
+			var list = template.list(filelist);
+			var html = template.HTML(title, list, `
 			<form action="/create_process" method="post">
 				<p><input type ="text" name="title" placeholder="title"></p>
 				<p>
@@ -121,7 +124,7 @@ var app = http.createServer(function(request,response){
 			</form>
 			`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
 			response.writeHead(200); 
-			response.end(template);
+			response.end(html);
 		});
 	}
 
@@ -150,8 +153,8 @@ var app = http.createServer(function(request,response){
 		fs.readdir('./data', function(error, filelist) {			
 			fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
 				var title = queryData.id;
-				var list = templateList(filelist);
-				var template = templateHTML(title, list,
+				var list = template.list(filelist);
+				var html = template.HTML(title, list,
 					/*
 					form을 수정 해 update 기능 구현
 					파일 이름 수정을 대비해 사용자가 수정하는 정보(원본 파일명)와 우리가 수정하고자 하는 정보(변경된 파일명)를 구분해서 전송
@@ -172,7 +175,7 @@ var app = http.createServer(function(request,response){
 					`<a href="/create">create</a> <a href="/update?id=${title}">update</a>` // home이 아닐 경우 update 기능 존재, 수정할 파일 명시 위해 id 제공
 					);
 				response.writeHead(200);
-				response.end(template);
+				response.end(html);
 			});
 		});
 	}
