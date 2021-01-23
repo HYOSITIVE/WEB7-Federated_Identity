@@ -1,45 +1,13 @@
 // Last Modification : 2021.01.23
 // by HYOSITIVE
-// based on WEB2 - Node.js - 43
+// based on WEB2 - Node.js - 45
 
 var http = require('http');
 var fs = require('fs');
 var url = require('url'); // url이라는 모듈은 url이라는 변수를 통해 사용
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 var qs = require('querystring');
-
-// refactoring
-var template = {
-	HTML:function(title, list, body, control) { // update 기능을 위해 control이라는 parameter 추가
-		return `
-		<!doctype html>
-		<html>
-		<head>
-		  <title>WEB1 - ${title}</title>
-		  <meta charset="utf-8">
-		</head>
-		<body>
-		  <h1><a href="/">WEB</a></h1>
-		  ${list}
-		  ${control}
-		  ${body}
-		</body>
-		</html>
-		`;
-	},
-	list:function(filelist) {
-		// filelist를 활용해 list 자동 생성
-		var list = '<ul>';
-		var i = 0;
-		while(i < filelist.length) {
-			list = list + `<li><a
-			href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-			i = i + 1;
-		}
-		list = list + '</ul>';
-		return list;
-	}
-}
+var template = require('./lib/template.js');
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
