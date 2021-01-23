@@ -1,6 +1,6 @@
 // Last Modification : 2021.01.23
 // by HYOSITIVE
-// based on WEB2 - Node.js - 45
+// based on WEB2 - Node.js - 46
 
 var http = require('http');
 var fs = require('fs');
@@ -8,6 +8,7 @@ var url = require('url'); // url이라는 모듈은 url이라는 변수를 통�
 // 'http', 'fs', 'url'은 모듈 (Node.js가 가지고 있는 수많은 기능들을 비슷한 것끼리 그룹핑한 것)이라고 한다.
 var qs = require('querystring');
 var template = require('./lib/template.js');
+var path = require('path');
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
@@ -48,8 +49,9 @@ var app = http.createServer(function(request,response){
 		}
 		
 		else { // 컨텐츠를 선택한 경우
-			fs.readdir('./data', function(error, filelist) {			
-				fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+			fs.readdir('./data', function(error, filelist) {
+				var	filteredId = path.parse(queryData.id).base;
+				fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
 					var title = queryData.id;
 					var list = template.list(filelist);
 					var html = template.HTML(title, list,
@@ -118,8 +120,9 @@ var app = http.createServer(function(request,response){
 
 	// 업데이트
 	else if(pathname === '/update') { 
-		fs.readdir('./data', function(error, filelist) {			
-			fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+		fs.readdir('./data', function(error, filelist) {
+			var	filteredId = path.parse(queryData.id).base;			
+			fs.readFile(`data/${fileteredId}`, 'utf8', function(err, description) {
 				var title = queryData.id;
 				var list = template.list(filelist);
 				var html = template.HTML(title, list,
@@ -178,7 +181,8 @@ var app = http.createServer(function(request,response){
 		request.on('end', function() {
 			var post = qs.parse(body);
 			var id = post.id;
-			fs.unlink(`data/${id}`, function(error) {
+			var	filteredId = path.parse(id).base;
+			fs.unlink(`data/${filteredId}`, function(error) {
 				response.writeHead(302, {Location: `/`}); // Home으로 Redirection
 					response.end();
 			});
