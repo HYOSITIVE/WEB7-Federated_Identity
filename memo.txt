@@ -1,7 +1,6 @@
 2020.09.12
 /
 URL
-
 ex) url : http://opentutorials.org:3000/main?id=HTML&page=12
 
 http - protocol : 통신규약
@@ -24,3 +23,12 @@ JavaScript에서는 세미콜론을 붙이지 않아도 된다.
 Parameter와 Argument
 Parameter : 입력되는 정보의 형식
 Argument : 그 형식에 맞게 실제로 입력되는 값
+/
+
+2021.01.25
+/
+npm으로 패키지 설치 시,
+-g : global : 모든 환경에서 해당 패키지 이용
+-S : 현재 프로그램에서만 해당 패키지 이용
+package.json 파일의 dependancies는 해당 패키지가 어떤 패키지에 의존하는지를 나타냄
+/

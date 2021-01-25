@@ -1,6 +1,6 @@
 // Last Modification : 2021.01.25
 // by HYOSITIVE
-// based on WEB2 - Node.js - 47
+// based on WEB2 - Node.js - 48
 
 var http = require('http');
 var fs = require('fs');
@@ -11,6 +11,7 @@ var template = require('./lib/template.js');
 var path = require('path');
 var sanitizeHtml = require('sanitize-html'); // sanitize-html 패키지 사용
 
+// Node.js 홈페이지를 통해 http와 같은 API 사용법 익힐 수 있음
 var app = http.createServer(function(request,response){
     var _url = request.url;
 	/*
