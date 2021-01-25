@@ -1,6 +1,6 @@
-// Last Modification : 2021.01.23
+// Last Modification : 2021.01.25
 // by HYOSITIVE
-// based on WEB2 - Node.js - 46
+// based on WEB2 - Node.js - 47
 
 var http = require('http');
 var fs = require('fs');
@@ -9,6 +9,7 @@ var url = require('url'); // url이라는 모듈은 url이라는 변수를 통�
 var qs = require('querystring');
 var template = require('./lib/template.js');
 var path = require('path');
+var sanitizeHtml = require('sanitize-html'); // sanitize-html 패키지 사용
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
@@ -53,17 +54,21 @@ var app = http.createServer(function(request,response){
 				var	filteredId = path.parse(queryData.id).base;
 				fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
 					var title = queryData.id;
+					var sanitizedTitle = sanitizeHtml(title);
+					var sanitizedDescription = sanitizeHtml(description, {
+						allowedTags:['h1']
+					});
 					var list = template.list(filelist);
-					var html = template.HTML(title, list,
+					var html = template.HTML(sanitizedTitle, list,
 						/*
 						delete 기능은 link로 구현하면 안된다. update 기능에서 post를 사용한 것과 같은 이유
 						querystring이 포함된 delete 링크로 컨텐츠 임의 삭제가 가능하기 때문
 						*/
-						`<h2>${title}</h2>${description}`,
+						`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
 						` <a href="/create">create</a>
-						  <a href="/update?id=${title}">update</a>
+						  <a href="/update?id=${sanitizedTitle}">update</a>
 						  <form action="delete_process" method="post">
-							  <input type="hidden" name="id" value="${title}">
+							  <input type="hidden" name="id" value="${sanitizedTitle}">
 							  <input type="submit" value="delete">			
 						  </form>`
 						);

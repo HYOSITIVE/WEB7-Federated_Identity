@@ -1,0 +1,25 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "Last Modification : 2021.01.23\r by HYOSITIVE",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HYOSITIVE/Web2-Node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HYOSITIVE/Web2-Node/issues"
+  },
+  "homepage": "https://github.com/HYOSITIVE/Web2-Node#readme",
+  "dependencies": {
+    "sanitize-html": "^2.3.1"
+  }
+}
