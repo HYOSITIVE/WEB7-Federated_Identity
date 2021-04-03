@@ -1,6 +1,6 @@
 // Last Modification : 2021.04.03
 // by HYOSITIVE
-// based on WEB3 - Express - 4
+// based on WEB3 - Express - 5.1
 
 var express = require('express')
 var app = express()
@@ -23,8 +23,9 @@ app.get('/', function(request, response) {
 	});
 });
 
-app.get('/page', function(req, res) {
-	return res.send('/page')
+// page/ 뒤의 입력값이 pageId에 할당
+app.get('/page/:pageId', function(request, response) {
+	response.send(request.params);
 });
 
 app.listen(port, function() {console.log(`Example app listening at http://localhost:${port}`)});
