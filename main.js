@@ -1,6 +1,6 @@
 // Last Modification : 2021.04.03
 // by HYOSITIVE
-// based on WEB3 - Express - 6
+// based on WEB3 - Express - 8
 
 var express = require('express')
 var app = express()
@@ -41,7 +41,7 @@ app.get('/page/:pageId', function(request, response) {
 				`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
 				` <a href="/create">create</a>
 				  <a href="/update/${sanitizedTitle}">update</a>
-				  <form action="delete_process" method="post">
+				  <form action="/delete_process" method="post">
 					  <input type="hidden" name="id" value="${sanitizedTitle}">
 					  <input type="submit" value="delete">			
 				  </form>`
@@ -128,10 +128,24 @@ app.post('/update_process', function(request, response) {
 		// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
 		fs.rename(`data/${id}`, `data/${title}`, function(error) {
 			fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-				response.writeHead(302, {Location: `/?id=${title}`}); // redirection
-				response.end();
+				response.redirect(`/?id=${title}`)
 			});
 		});
+	});
+});
+
+app.post('delete_process', function(request, response) {
+	var body = '';
+	request.on('data', function(data) {
+		body = body + data;
+	});
+	request.on('end', function() {
+		var post = qs.parse(body);
+		var id = post.id;
+		var	filteredId = path.parse(id).base;
+		fs.unlink(`data/${filteredId}`, function(error) {
+			response.redirect('/');
+		})
 	});
 });
 
