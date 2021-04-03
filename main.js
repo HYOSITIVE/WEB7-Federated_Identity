@@ -1,15 +1,19 @@
-// Last Modification : 2021.03.16
+// Last Modification : 2021.04.03
 // by HYOSITIVE
-// based on WEB3 - Express - 3.1
+// based on WEB3 - Express - 3.2
 
-const express = require('express')
-const app = express()
+var express = require('express')
+var app = express()
 const port = 3000
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+// route, routing : path에 따라 적당한 응답
+// app.get('/', (req, res) => {res.send('Hello World!')})
+app.get('/', function(req, res) {
+	return res.send('/')
+});
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+app.get('/page', function(req, res) {
+	return res.send('/page')
+});
+
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
