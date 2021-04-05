@@ -134,7 +134,7 @@ app.post('/update_process', function(request, response) {
 	});
 });
 
-app.post('delete_process', function(request, response) {
+app.post('/delete_process', function(request, response) {
 	var body = '';
 	request.on('data', function(data) {
 		body = body + data;
