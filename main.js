@@ -1,6 +1,6 @@
 // Last Modification : 2021.04.05
 // by HYOSITIVE
-// based on WEB3 - Express - 9.1
+// based on WEB3 - Express - 9.2
 
 var express = require('express')
 var app = express()
@@ -9,11 +9,14 @@ var path = require('path');
 var qs = require('querystring');
 var bodyParser = require('body-parser');
 var sanitizeHtml = require('sanitize-html');
+var compression = require('compression')
 var template = require('./lib/template.js');
 const port = 3000
 
 // bodyParser가 만들어내는 middleware를 표현하는 표현식
 app.use(bodyParser.urlencoded({ extended: false}));
+// compression()함수가 middleware를 return
+app.use(compression());
 
 // route, routing : path에 따라 적당한 응답
 // app.get('/', (req, res) => {res.send('Hello World!')})
