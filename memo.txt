@@ -1,0 +1,7 @@
+// Last Modification : 2021.04.12
+// by HYOSITIVE
+
+2021.04.12
+req.params : url 파라미터 정보를 조회
+req.query : 쿼리 문자열을 조회
+req.body : 요청 바디를 조회

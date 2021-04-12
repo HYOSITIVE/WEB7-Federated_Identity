@@ -1,4 +1,4 @@
-// Last Modification : 2021.04.05
+// Last Modification : 2021.04.12
 // by HYOSITIVE
 // based on WEB3 - Express - 10
 
@@ -13,10 +13,12 @@ var compression = require('compression')
 var template = require('./lib/template.js');
 const port = 3000
 
-// bodyParser가 만들어내는 middleware를 표현하는 표현식
+// app.use()안의 내용은 bodyParser가 만들어내는 middleware를 표현하는 표현식
 app.use(bodyParser.urlencoded({ extended: false}));
+
 // compression()함수가 middleware를 return
 app.use(compression());
+
 // my middleware
 app.get('*', function(request, response, next){ // get 방식으로 들어오는 모든 요청에 대해
 	fs.readdir('./data', function(error, filelist) {
@@ -26,8 +28,7 @@ app.get('*', function(request, response, next){ // get 방식으로 들어오는
 });
 
 // route, routing : path에 따라 적당한 응답
-// app.get('/', (req, res) => {res.send('Hello World!')})
-app.get('/', function(request, response) {
+app.get('/', function(request, response) { // app.get('/', (req, res) => {res.send('Hello World!')}) : arrow function
 	var title = 'Welcome';
 	var description = 'Hello, Node.js';
 	var list = template.list(request.list);
@@ -81,7 +82,8 @@ app.get('/create', function(request, response) {
 
 
 app.post('/create_process', function(request, response) {
-	var post = request.body;
+	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
+	console.log(post);
 	var title = post.title;
 	var description = post.description;
 	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
@@ -108,7 +110,7 @@ app.get('/update/:pageId', function(request, response) {
 				</p>
 			</form>
 			`,
-			`<a href="/create">create</a> <a href="/update?id=${title}">update</a>`
+			`<a href="/create">create</a> <a href="/update/${title}">update</a>`
 		);
 		response.send(html);
 	});
@@ -123,7 +125,7 @@ app.post('/update_process', function(request, response) {
 	// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
 	fs.rename(`data/${id}`, `data/${title}`, function(error) {
 		fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-			response.redirect(`/?id=${title}`)
+			response.redirect(`page/${title}`)
 		});
 	});
 });
