@@ -1,4 +1,4 @@
-// Last Modification : 2021.04.12
+// Last Modification : 2021.04.14
 // by HYOSITIVE
 // based on WEB3 - Express - 10
 
@@ -13,22 +13,31 @@ var compression = require('compression')
 var template = require('./lib/template.js');
 const port = 3000
 
+
+// 애플리케이션은 요청이 들어올 때마다 bodyparser, compression middleware를 실행
+
+// bodyparser : 전송한 정보를 자동으로 분석해주는 middleware
 // app.use()안의 내용은 bodyParser가 만들어내는 middleware를 표현하는 표현식
 app.use(bodyParser.urlencoded({ extended: false}));
 
+// compression : 웹 서버에서 정보를 압축해 전송해주는 middleware
 // compression()함수가 middleware를 return
 app.use(compression());
 
 // my middleware
+// middleware의 함수는 request, response, next를 인자로 가짐
 app.get('*', function(request, response, next){ // get 방식으로 들어오는 모든 요청에 대해
 	fs.readdir('./data', function(error, filelist) {
-		request.list = filelist;
+		request.list = filelist; // 모든 route 안에서 request 객체의 list property를 통해 목록에 접근
 		next(); // next에는 그 다음에 호출되어야 할 middleware 담김
 	});
 });
 
 // route, routing : path에 따라 적당한 응답
-app.get('/', function(request, response) { // app.get('/', (req, res) => {res.send('Hello World!')}) : arrow function
+app.get('/', function(request, response) { // 결국 Express의 모든 것이 middleware이다.
+// 애플리케이션이 구동될 때, 순서대로 등록되어 있는 작은 프로그램들(middleware)이 실행됨.
+	
+// app.get('/', (req, res) => {res.send('Hello World!')}) : arrow function
 	var title = 'Welcome';
 	var description = 'Hello, Node.js';
 	var list = template.list(request.list);
