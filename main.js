@@ -1,6 +1,6 @@
 // Last Modification : 2021.04.15
 // by HYOSITIVE
-// based on WEB3 - Express - 12
+// based on WEB3 - Express - 13
 
 var express = require('express')
 var app = express()
@@ -50,26 +50,30 @@ app.get('/', function(request, response) { // 결국 Express의 모든 것이 mi
 });
 
 // page/ 뒤의 입력값이 pageId에 할당
-app.get('/page/:pageId', function(request, response) {
-	
+app.get('/page/:pageId', function(request, response, next) {
 	var	filteredId = path.parse(request.params.pageId).base;
 	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
-		var title = request.params.pageId;
-		var sanitizedTitle = sanitizeHtml(title);
-		var sanitizedDescription = sanitizeHtml(description, {
-			allowedTags:['h1']
-		});
-		var list = template.list(request.list);
-		var html = template.HTML(sanitizedTitle, list,
-			`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
-			` <a href="/create">create</a>
-			  <a href="/update/${sanitizedTitle}">update</a>
-			  <form action="/delete_process" method="post">
+		if (err) {
+			next(err);
+		}
+		else {
+			var title = request.params.pageId;
+			var sanitizedTitle = sanitizeHtml(title);
+			var sanitizedDescription = sanitizeHtml(description, {
+				allowedTags:['h1']
+			});
+			var list = template.list(request.list);
+			var html = template.HTML(sanitizedTitle, list,
+				`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
+				` <a href="/create">create</a>
+			  	<a href="/update/${sanitizedTitle}">update</a>
+			  	<form action="/delete_process" method="post">
 				  <input type="hidden" name="id" value="${sanitizedTitle}">
 				  <input type="submit" value="delete">			
-			  </form>`
-		);
-		response.send(html);
+				</form>`
+			);
+			response.send(html);	
+		}
 	});
 });
 
@@ -148,5 +152,15 @@ app.post('/delete_process', function(request, response) {
 		response.redirect('/');
 	});
 });
+
+
+app.use(function(req, res, next) { // 404 에러 처리 middleware
+	res.status(404).send('Sorry cant find that!');	
+});
+
+app.use(function(err, req, res, next) { // 4개의 인자를 가진 함수는 Express에서 Error Handler middleware로 지정 
+	console.error(err.stack);
+	res.status(500).send('Something broke!');
+})
 
 app.listen(port, function() {console.log(`Example app listening at http://localhost:${port}`)});
