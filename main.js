@@ -1,6 +1,6 @@
 // Last Modification : 2021.04.15
 // by HYOSITIVE
-// based on WEB3 - Express - 13
+// based on WEB3 - Express - 14.1
 
 var express = require('express')
 var app = express()
@@ -44,13 +44,86 @@ app.get('/', function(request, response) { // 결국 Express의 모든 것이 mi
 	var html = template.HTML(title, list,
 		`<h2>${title}</h2>${description}
 		<img src="/images/hello.jpg" style="width:300px; display:block; margin-top:10px;"></img>`,
-		`<a href="/create">create</a>`
+		`<a href="/topic/create">create</a>`
 	);
 	response.send(html);
 });
 
-// page/ 뒤의 입력값이 pageId에 할당
-app.get('/page/:pageId', function(request, response, next) {
+app.get('/topic/create', function(request, response) {
+	var title = 'WEB - create';
+	var list = template.list(request.list);
+	var html = template.HTML(title, list, `
+		<form action="/topic/create_process" method="post">
+			<p><input type ="text" name="title" placeholder="title"></p>
+			<p>
+				<textarea name="description" placeholder="description"></textarea>
+			</p>
+			<p>
+				<input type="submit">
+			</p>
+		</form>
+	`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
+	response.send(html);
+});
+
+app.post('/topic/create_process', function(request, response) {
+	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
+	console.log(post);
+	var title = post.title;
+	var description = post.description;
+	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
+		response.redirect(`/topic/${title}`);
+	});
+});
+
+app.get('/topic/update/:pageId', function(request, response) {
+	var	filteredId = path.parse(request.params.pageId).base;			
+	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
+		var title = request.params.pageId;
+		var list = template.list(request.list);
+		var html = template.HTML(title, list,
+			`
+			<form action="/topic/update_process" method="post">
+				<input type="hidden" name="id" value="${title}">
+				<p><input type ="text" name="title" placeholder="title" value="${title}"></p>
+				<p>
+					<textarea name="description" placeholder="description">${description}</textarea>
+				</p>
+				<p>
+					<input type="submit">
+				</p>
+			</form>
+			`,
+			`<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`
+		);
+		response.send(html);
+	});
+});
+
+app.post('/topic/update_process', function(request, response) {
+	var post = request.body;
+	var id = post.id;
+	var title = post.title;
+	var description = post.description;
+	// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
+	fs.rename(`data/${id}`, `data/${title}`, function(error) {
+		fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
+			response.redirect(`/topic/${title}`)
+		});
+	});
+});
+
+app.post('/topic/delete_process', function(request, response) {
+	var post = request.body;
+	var id = post.id;
+	var	filteredId = path.parse(id).base;
+	fs.unlink(`data/${filteredId}`, function(error) {
+		response.redirect('/');
+	});
+});
+
+// 'topic'은 예약어로 사용되므로, /topic으로 접속했을 때에는 topic이라는 제목의 페이지를 탐색하지 않음
+app.get('/topic/:pageId', function(request, response, next) {
 	var	filteredId = path.parse(request.params.pageId).base;
 	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
 		if (err) {
@@ -65,9 +138,9 @@ app.get('/page/:pageId', function(request, response, next) {
 			var list = template.list(request.list);
 			var html = template.HTML(sanitizedTitle, list,
 				`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
-				` <a href="/create">create</a>
-			  	<a href="/update/${sanitizedTitle}">update</a>
-			  	<form action="/delete_process" method="post">
+				` <a href="/topic/create">create</a>
+			  	<a href="/topic/update/${sanitizedTitle}">update</a>
+			  	<form action="/topic/delete_process" method="post">
 				  <input type="hidden" name="id" value="${sanitizedTitle}">
 				  <input type="submit" value="delete">			
 				</form>`
@@ -76,83 +149,6 @@ app.get('/page/:pageId', function(request, response, next) {
 		}
 	});
 });
-
-app.get('/create', function(request, response) {
-	var title = 'WEB - create';
-	var list = template.list(request.list);
-	var html = template.HTML(title, list, `
-		<form action="/create_process" method="post">
-			<p><input type ="text" name="title" placeholder="title"></p>
-			<p>
-				<textarea name="description" placeholder="description"></textarea>
-			</p>
-			<p>
-				<input type="submit">
-			</p>
-		</form>
-	`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
-	response.send(html);
-});
-
-
-app.post('/create_process', function(request, response) {
-	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
-	console.log(post);
-	var title = post.title;
-	var description = post.description;
-	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-		response.writeHead(302, {Location: `/page/${title}`}); // redirection
-		response.end();
-	});
-});
-
-app.get('/update/:pageId', function(request, response) {
-	var	filteredId = path.parse(request.params.pageId).base;			
-	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
-		var title = request.params.pageId;
-		var list = template.list(request.list);
-		var html = template.HTML(title, list,
-			`
-			<form action="/update_process" method="post">
-				<input type="hidden" name="id" value="${title}">
-				<p><input type ="text" name="title" placeholder="title" value="${title}"></p>
-				<p>
-					<textarea name="description" placeholder="description">${description}</textarea>
-				</p>
-				<p>
-					<input type="submit">
-				</p>
-			</form>
-			`,
-			`<a href="/create">create</a> <a href="/update/${title}">update</a>`
-		);
-		response.send(html);
-	});
-});
-
-
-app.post('/update_process', function(request, response) {
-	var post = request.body;
-	var id = post.id;
-	var title = post.title;
-	var description = post.description;
-	// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
-	fs.rename(`data/${id}`, `data/${title}`, function(error) {
-		fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-			response.redirect(`page/${title}`)
-		});
-	});
-});
-
-app.post('/delete_process', function(request, response) {
-	var post = request.body;
-	var id = post.id;
-	var	filteredId = path.parse(id).base;
-	fs.unlink(`data/${filteredId}`, function(error) {
-		response.redirect('/');
-	});
-});
-
 
 app.use(function(req, res, next) { // 404 에러 처리 middleware
 	res.status(404).send('Sorry cant find that!');	
