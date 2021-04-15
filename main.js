@@ -1,6 +1,6 @@
-// Last Modification : 2021.04.14
+// Last Modification : 2021.04.15
 // by HYOSITIVE
-// based on WEB3 - Express - 10
+// based on WEB3 - Express - 12
 
 var express = require('express')
 var app = express()
@@ -13,6 +13,7 @@ var compression = require('compression')
 var template = require('./lib/template.js');
 const port = 3000
 
+app.use(express.static('public')); // public directory 안에서 static file을 찾겠다는 의미. public 폴더 안의 파일은 url을 통해 접근 가능
 
 // 애플리케이션은 요청이 들어올 때마다 bodyparser, compression middleware를 실행
 
@@ -36,13 +37,13 @@ app.get('*', function(request, response, next){ // get 방식으로 들어오는
 // route, routing : path에 따라 적당한 응답
 app.get('/', function(request, response) { // 결국 Express의 모든 것이 middleware이다.
 // 애플리케이션이 구동될 때, 순서대로 등록되어 있는 작은 프로그램들(middleware)이 실행됨.
-	
 // app.get('/', (req, res) => {res.send('Hello World!')}) : arrow function
 	var title = 'Welcome';
 	var description = 'Hello, Node.js';
 	var list = template.list(request.list);
 	var html = template.HTML(title, list,
-		`<h2>${title}</h2>${description}`,
+		`<h2>${title}</h2>${description}
+		<img src="/images/hello.jpg" style="width:300px; display:block; margin-top:10px;"></img>`,
 		`<a href="/create">create</a>`
 	);
 	response.send(html);
