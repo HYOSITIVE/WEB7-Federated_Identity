@@ -1,14 +1,13 @@
 // Last Modification : 2021.04.17
 // by HYOSITIVE
-// based on WEB3 - Express - 14.2
+// based on WEB3 - Express - 14.3
 
 var express = require('express')
 var app = express()
 var fs = require('fs');
-var qs = require('querystring');
 var bodyParser = require('body-parser');
 var compression = require('compression');
-var template = require('./lib/template.js');
+var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
 const port = 3000
 
@@ -33,21 +32,7 @@ app.get('*', function(request, response, next){ // get 방식으로 들어오는
 	});
 });
 
-// route, routing : path에 따라 적당한 응답
-app.get('/', function(request, response) { // 결국 Express의 모든 것이 middleware이다.
-// 애플리케이션이 구동될 때, 순서대로 등록되어 있는 작은 프로그램들(middleware)이 실행됨.
-// app.get('/', (req, res) => {res.send('Hello World!')}) : arrow function
-	var title = 'Welcome';
-	var description = 'Hello, Node.js';
-	var list = template.list(request.list);
-	var html = template.HTML(title, list,
-		`<h2>${title}</h2>${description}
-		<img src="/images/hello.jpg" style="width:300px; display:block; margin-top:10px;"></img>`,
-		`<a href="/topic/create">create</a>`
-	);
-	response.send(html);
-});
-
+app.use('/', indexRouter);
 app.use('/topic', topicRouter); // /topic으로 시작하는 주소들에게 topicRouter라는 middleware를 적용
 // 이렇게 사용할 경우, toppicRouter middleware에서 'topic' 경로를 다시 알려줄 필요 없음
 
