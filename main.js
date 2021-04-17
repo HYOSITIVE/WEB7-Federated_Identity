@@ -9,6 +9,8 @@ var bodyParser = require('body-parser');
 var compression = require('compression');
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
+var helmet = require('helmet');
+app.use(helmet());
 const port = 3000
 
 app.use(express.static('public')); // public directory 안에서 static file을 찾겠다는 의미. public 폴더 안의 파일은 url을 통해 접근 가능
