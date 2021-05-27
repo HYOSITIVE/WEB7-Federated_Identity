@@ -1,6 +1,6 @@
 // Last Modification : 2021.05.27
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.1
+// based on WEB4 - Express - Session & Auth - 6.2
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -8,6 +8,12 @@ var path = require('path');
 var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
+
+var authData = {
+	email:'hyositive_test@gmail.com',
+	password:'111111',
+	nickname:'hyositive'
+}
 
 
 router.get('/login', function(request, response) {
@@ -23,6 +29,18 @@ router.get('/login', function(request, response) {
 		</form>
 	`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
 	response.send(html);
+});
+
+router.post('/login_process', function(request, response) {
+	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
+	var email = post.email;
+	var password = post.pwd;
+	if (email === authData.email && password === authData.password) {
+		response.send('Welcome!');
+	} else {
+		response.send('Who?');
+	}
+	//response.redirect(`/topic/${title}`);
 });
 
 /*
