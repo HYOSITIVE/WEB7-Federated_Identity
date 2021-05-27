@@ -1,6 +1,6 @@
 // Last Modification : 2021.05.27
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 3
+// based on WEB4 - Express - Session & Auth - 4
 
 var express = require('express')
 var parseurl = require('parseurl')
@@ -15,7 +15,13 @@ app.use(session({
 }))
 
 app.get('/', function (req, res, next) {
-  res.send('Hello session');
+	console.log(req.session);  // 세션은 내부적으로 request 객체의 property로 session이라는 객체를 추가
+	if (req.session.num === undefined) {
+		req.session.num = 1;
+	} else {
+		req.session.num = req.session.num + 1;
+	}
+  res.send(`Views : ${req.session.num}`); // session middleware는 내부적으로 session storage(세션 저장소)에 num이라는 변수 저장. 세션은 메모리에 저장되어 휘발성이 있음
 })
 
 app.listen(3000, function() {
