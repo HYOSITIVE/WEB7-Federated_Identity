@@ -1,14 +1,12 @@
-// Last Modification : 2021.04.17
+// Last Modification : 2021.05.27
 // by HYOSITIVE
-// based on WEB3 - Express - 14.3
+// based on WEB4 - Express - Session & Auth - 6.1
 
 var express = require('express')
 var app = express()
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var compression = require('compression');
-var indexRouter = require('./routes/index');
-var topicRouter = require('./routes/topic');
 var helmet = require('helmet');
 app.use(helmet());
 const port = 3000
@@ -34,9 +32,14 @@ app.get('*', function(request, response, next){ // get 방식으로 들어오는
 	});
 });
 
+var indexRouter = require('./routes/index');
+var topicRouter = require('./routes/topic');
+var authRouter = require('./routes/auth');
+
 app.use('/', indexRouter);
 app.use('/topic', topicRouter); // /topic으로 시작하는 주소들에게 topicRouter라는 middleware를 적용
-// 이렇게 사용할 경우, toppicRouter middleware에서 'topic' 경로를 다시 알려줄 필요 없음
+// 이렇게 사용할 경우, topicRouter middleware에서 'topic' 경로를 다시 알려줄 필요 없음
+app.use('/auth', authRouter);
 
 app.use(function(req, res, next) { // 404 에러 처리 middleware
 	res.status(404).send('Sorry cant find that!');	

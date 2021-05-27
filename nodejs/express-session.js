@@ -1,6 +1,6 @@
 // Last Modification : 2021.05.27
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 5
+// based on WEB4 - Express - Session & Auth - 6.1
 
 var express = require('express')
 var parseurl = require('parseurl')
