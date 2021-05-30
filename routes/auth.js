@@ -15,7 +15,6 @@ var authData = {
 	nickname:'hyositive'
 }
 
-
 router.get('/login', function(request, response) {
 	var title = 'WEB - login';
 	var list = template.list(request.list);
@@ -43,7 +42,6 @@ router.post('/login_process', function(request, response) {
 	else {
 		response.send('Who?');
 	}
-	//response.redirect(`/topic/${title}`);
 });
 
 /*
