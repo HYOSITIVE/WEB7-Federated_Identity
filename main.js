@@ -1,7 +1,8 @@
-// Last Modification : 2021.05.27
+// Last Modification : 2021.05.30
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.1
+// based on WEB4 - Express - Session & Auth - 6.3
 
+const port = 3000
 var express = require('express')
 var app = express()
 var fs = require('fs');
@@ -9,7 +10,8 @@ var bodyParser = require('body-parser');
 var compression = require('compression');
 var helmet = require('helmet');
 app.use(helmet());
-const port = 3000
+var session = require('express-session')
+var FileStore = require('session-file-store')(session) // 실제로는 데이터베이스에 저장하는 것이 바람직함
 
 app.use(express.static('public')); // public directory 안에서 static file을 찾겠다는 의미. public 폴더 안의 파일은 url을 통해 접근 가능
 
@@ -22,6 +24,13 @@ app.use(bodyParser.urlencoded({ extended: false}));
 // compression : 웹 서버에서 정보를 압축해 전송해주는 middleware
 // compression()함수가 middleware를 return
 app.use(compression());
+
+app.use(session({ // session middleware
+  secret: 'keyboard cat', // 타인에게 유출하면 안됨. 실제 구현 시 변수처리하거나 외부에서 지정
+  resave: false, // 세션 데이터가 바뀌기 전까지는 세션 저장소에 값을 저장하지 않는다
+  saveUninitialized: true, // 세션이 필요하기 전까지는 세션을 구동시키지 않는다
+	store:new FileStore()
+}))
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
