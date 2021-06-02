@@ -1,6 +1,6 @@
-// Last Modification : 2021.05.30
+// Last Modification : 2021.06.02
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.3
+// based on WEB4 - Express - Session & Auth - 6.6
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -42,6 +42,12 @@ router.post('/login_process', function(request, response) {
 	else {
 		response.send('Who?');
 	}
+});
+
+router.get('/logout', function(request, response) {
+	request.session.destroy(function(err) {
+		response.redirect('/');
+	});
 });
 
 /*
