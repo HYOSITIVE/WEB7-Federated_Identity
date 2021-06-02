@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.02
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.6
+// based on WEB4 - Express - Session & Auth - 6.8
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -37,7 +37,9 @@ router.post('/login_process', function(request, response) {
 	if (email === authData.email && password === authData.password) {
 		request.session.is_logined = true;
 		request.session.nickname = authData.nickname;
-		response.redirect(`/`);
+		request.session.save(function() { // session middleware는 기록한 데이터를 session store에 기록(메모리에 저장된 세션 데이터를 저장소에 반영)하는데, 기록 작업 종료 이전에 리다이렉션이 이루어질 경우 에러가 발생. 이를 방지하고자 save 함수로 기록하고, save가 끝난 경우 callback 함수로 리다이렉션을 진행
+			response.redirect(`/`);
+		});
 	}
 	else {
 		response.send('Who?');
