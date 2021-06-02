@@ -1,6 +1,6 @@
 // Last Modification : 2021.06.02
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.5
+// based on WEB4 - Express - Session & Auth - 6.7
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -11,6 +11,10 @@ var template = require('../lib/template.js');
 var auth = require('../lib/auth.js');
 
 router.get('/create', function(request, response) {
+	if(!auth.isOwner(request, response)) {
+		response.redirect('/'); // 홈으로 튕기기
+		return false;
+	}
 	var title = 'WEB - create';
 	var list = template.list(request.list);
 	var html = template.HTML(title, list, `
@@ -28,6 +32,10 @@ router.get('/create', function(request, response) {
 });
 
 router.post('/create_process', function(request, response) {
+	if(!auth.isOwner(request, response)) {
+		response.redirect('/'); // 홈으로 튕기기
+		return false;
+	}
 	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
 	console.log(post);
 	var title = post.title;
@@ -38,6 +46,10 @@ router.post('/create_process', function(request, response) {
 });
 
 router.get('/update/:pageId', function(request, response) {
+	if(!auth.isOwner(request, response)) {
+		response.redirect('/'); // 홈으로 튕기기
+		return false;
+	}
 	var	filteredId = path.parse(request.params.pageId).base;			
 	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
 		var title = request.params.pageId;
@@ -63,6 +75,10 @@ router.get('/update/:pageId', function(request, response) {
 });
 
 router.post('/update_process', function(request, response) {
+	if(!auth.isOwner(request, response)) {
+		response.redirect('/'); // 홈으로 튕기기
+		return false;
+	}
 	var post = request.body;
 	var id = post.id;
 	var title = post.title;
@@ -76,6 +92,10 @@ router.post('/update_process', function(request, response) {
 });
 
 router.post('/delete_process', function(request, response) {
+	if(!auth.isOwner(request, response)) {
+		response.redirect('/'); // 홈으로 튕기기
+		return false;
+	}
 	var post = request.body;
 	var id = post.id;
 	var	filteredId = path.parse(id).base;
