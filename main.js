@@ -1,6 +1,6 @@
-// Last Modification : 2021.05.30
+// Last Modification : 2021.06.02
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.3
+// based on WEB4 - Express - Session & Auth - 6.5
 
 const port = 3000
 var express = require('express')

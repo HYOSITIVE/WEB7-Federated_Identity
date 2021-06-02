@@ -1,6 +1,6 @@
-// Last Modification : 2021.04.17
+// Last Modification : 2021.06.02
 // by HYOSITIVE
-// based on WEB3 - Express - 14.2
+// based on WEB4 - Express - Session & Auth - 6.5
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -8,6 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
+var auth = require('../lib/auth.js');
 
 router.get('/create', function(request, response) {
 	var title = 'WEB - create';
@@ -22,7 +23,7 @@ router.get('/create', function(request, response) {
 				<input type="submit">
 			</p>
 		</form>
-	`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
+	`, '', auth.statusUI(request, response)); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
 	response.send(html);
 });
 
@@ -54,7 +55,8 @@ router.get('/update/:pageId', function(request, response) {
 				</p>
 			</form>
 			`,
-			`<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`
+			`<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`,
+			auth.statusUI(request, response)
 		);
 		response.send(html);
 	});
@@ -99,13 +101,14 @@ router.get('/:pageId', function(request, response, next) {
 			var html = template.HTML(sanitizedTitle, list,
 				`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
 				` <a href="/topic/create">create</a>
-			  	<a href="/topic/update/${sanitizedTitle}">update</a>
-			  	<form action="/topic/delete_process" method="post">
-				  <input type="hidden" name="id" value="${sanitizedTitle}">
-				  <input type="submit" value="delete">			
-				</form>`
+				  <a href="/topic/update/${sanitizedTitle}">update</a>
+				  <form action="/topic/delete_process" method="post">
+				    <input type="hidden" name="id" value="${sanitizedTitle}">
+				    <input type="submit" value="delete">			
+				  </form>`,
+				  auth.statusUI(request, response)
 			);
-			response.send(html);	
+			response.send(html)
 		}
 	});
 });
