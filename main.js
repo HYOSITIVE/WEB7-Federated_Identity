@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 3
+// based on WEB5 - Passport_REWORK - 4.1
 
 const port = 3000
 var express = require('express')
@@ -35,12 +35,34 @@ app.use(session({ // session middleware
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
-  app.post('/auth/login_process', // 인증 정보를 받는 경로
-  	passport.authenticate('local', { // Passport에서 제공하는 API. passport.authenticate가 callback 함수 역할
-		// 로그인 성공/실패에 따라 리다이렉션. 로그인 후 추가적인 기능이 필요하다면 passport에서 제공하는 다른 API 사용할 수 있다.
-		successRedirect: '/',
-    	failureRedirect: '/auth/login'
-	}));
+passport.use(new LocalStrategy( // Form 데이터 도착지점
+	{ // Passport는 기본적으로(default) Form 형식으로 username, password 데이터를 받는다. 이를 변경하려면 callback 함수 이전에 객체를 생성해 명시적으로 지정해주어야 한다.
+		usernameField: 'email',
+		passwordField: 'pwd'
+
+	},
+  function(username, password, done) {
+	  console.log('LocalStrategy', username, password);
+
+    /*User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });*/
+  }
+));
+
+app.post('/auth/login_process', // 인증 정보를 받는 경로
+passport.authenticate('local', { // Passport에서 제공하는 API. passport.authenticate가 callback 함수 역할
+	// 로그인 성공/실패에 따라 리다이렉션. 로그인 후 추가적인 기능이 필요하다면 passport에서 제공하는 다른 API 사용할 수 있다.
+	successRedirect: '/',
+    failureRedirect: '/auth/login'
+}));
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
