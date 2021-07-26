@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 2
+// based on WEB5 - Passport_REWORK - 3
 
 const port = 3000
 var express = require('express')
@@ -34,6 +34,13 @@ app.use(session({ // session middleware
 
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
+
+  app.post('/auth/login_process', // 인증 정보를 받는 경로
+  	passport.authenticate('local', { // Passport에서 제공하는 API. passport.authenticate가 callback 함수 역할
+		// 로그인 성공/실패에 따라 리다이렉션. 로그인 후 추가적인 기능이 필요하다면 passport에서 제공하는 다른 API 사용할 수 있다.
+		successRedirect: '/',
+    	failureRedirect: '/auth/login'
+	}));
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐

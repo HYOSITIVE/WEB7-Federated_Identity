@@ -1,6 +1,6 @@
-// Last Modification : 2021.06.02
+// Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.8
+// based on WEB5 - Passport_REWORK - 3
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -30,6 +30,7 @@ router.get('/login', function(request, response) {
 	response.send(html);
 });
 
+/*
 router.post('/login_process', function(request, response) {
 	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
 	var email = post.email;
@@ -45,6 +46,7 @@ router.post('/login_process', function(request, response) {
 		response.send('Who?');
 	}
 });
+*/
 
 router.get('/logout', function(request, response) {
 	request.session.destroy(function(err) {
