@@ -1,6 +1,6 @@
-// Last Modification : 2021.06.02
+// Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.5
+// based on WEB5 - Passport_REWORK - 2
 
 const port = 3000
 var express = require('express')
@@ -31,6 +31,9 @@ app.use(session({ // session middleware
   saveUninitialized: true, // 세션이 필요하기 전까지는 세션을 구동시키지 않는다
 	store:new FileStore()
 }))
+
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
