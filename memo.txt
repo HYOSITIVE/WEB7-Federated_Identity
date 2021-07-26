@@ -1,0 +1,2 @@
+데이터, 세션 변동으로 인한 프로그램 자동 재시작 방지
+pm2 start main.js --watch --ignore-watch "data/* sessions/*" --no-daemon

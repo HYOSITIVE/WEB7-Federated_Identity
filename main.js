@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 8
+// based on WEB5 - Passport_REWORK - 10
 
 const port = 3000
 var express = require('express')
@@ -33,84 +33,9 @@ app.use(session({ // session middleware
 	store:new FileStore()
 }))
 
-app.use(flash());
-app.get('/flash', function(req, res){
-	// Set a flash message by passing the key, followed by the value, to req.flash().
-	req.flash('msg', 'Flash is back!!'); // 세션 스토어에 입력 데이터를 추가
-	res.send('flash');
-  });
-   
-app.get('/flash-display', function(req, res){
-	// Get an array of flash messages by passing the key to req.flash()
-	var fmsg = req.flash();
-	console.log(fmsg);
-	res.send(fmsg);
-  });
+app.use(flash()); // flash 오류로 skip
 
-var authData = {
-	email:'hyositive_test@gmail.com',
-	password:'111111',
-	nickname:'hyositive'
-}
-
-var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
-
-app.use(passport.initialize()); // express에 passport middleware 설치. express가 호출될 때마다 passport가 개입
-app.use(passport.session()); // passport 인증 시 session을 내부적으로 사용
-
-// 사용자가 로그인에 성공했을 때 1회만 호출되어 사용자 정보를 session store에 저장
-passport.serializeUser(function(user, done) {
-	console.log('serializeUser', user);
-	done(null, user.email); // done의 두 번째 인자로 사용자 식별자(이메일) 주입. 주입된 데이터는 세션 데이터에 저장
-});
-
-// 사용자가 페이지에 방문할 때마다 호출되어 사용자 정보 조회
-passport.deserializeUser(function(id, done) {
-	console.log('deserializeUser', id);
-	// callback 함수의 첫 번째 인자로 세션 데이터로부터 식별자 주입(id)
-	// 사용자 데이터가 저장된 곳(DB 또는 로컬)에서 실제 데이터 조회(authData)
-	// 세션으로부터 받아 온 데이터(id)와 DB에 저장된 데이터(authData)를 비교, 사용자 유무 판별
-	// 이 예제에서는 비교 과정 생략하고(사용자 존재한다고 가정), 바로 done의 두 번째 인자에 사용자 정보(authData) 주입
-	done(null, authData);
-});
-
-passport.use(new LocalStrategy( // Form 데이터 도착 지점
-	{ // Passport는 기본적으로(default) Form 형식으로 username, password 데이터를 받는다. 이를 변경하려면 callback 함수 이전에 객체를 생성해 명시적으로 지정해주어야 한다.
-		usernameField: 'email',
-		passwordField: 'pwd'
-
-	},
-  function(username, password, done) { // done이 어떻게 호출되느냐에 따라 로그인 성공, 실패 여부를 판별
-	  console.log('LocalStrategy', username, password);
-	  if(username === authData.email) {
-		  console.log(1);
-		  if (password === authData.password) { // 로그인 성공 : done 함수에 사용자 정보
-			console.log(2);
-			return done(null, authData); // authData를 serializeUser의 callback 함수의 첫번째 인자로 주입
-		  }
-		  else { // 로그인 실패(이메일 일치, 패스워드 불일치) : done 함수에 false, 에러 메세지
-			console.log(3);
-			return done(null, false, { message: 'Incorrect password.' });
-		  }
-	  }
-	  else { // 로그인 실패(이메일 불일치) : done 함수의 두 번째 인자에 false, 에러 메세지
-		console.log(4);
-		return done(null, false, { message: 'Incorrect username.' });
-	  }
-  }
-));
-
-// 사용자가 로그인을 전송했을 때, passport가 그 로그인 데이터를 처리하기 위한 코드
-// 세션 저장 전 리다이렉션을 방지하기 위해 로그인 성공 시 callback 함수를 호출해 명시적으로 세션 저장 후 리다이렉션
-// PM2, nodemon 등의 툴에서 watch 기능을 사용할 경우, 세션 파일 변경으로 서버가 재시작 될 수 있으므로, 명시적으로 sessions 디렉토리를 watch-ignore 해 준다.
-// function(param) {} === (param) => {}
-app.post('/auth/login_process', // 인증 정보를 받는 경로
-passport.authenticate('local', {failureRedirect : '/auth/login'}) , (req, res) => {
-	req.session.save( () => {
-		res.redirect('/')
-	})
-});
+var passport = require('./lib/passport')(app) // passport.js 자체가 함수로 기능. 파라미터에 app(express)를 주입. login_process에서 passport를 사용하므로 passport 변수 사용
 
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
@@ -123,7 +48,7 @@ app.get('*', function(request, response, next){ // get 방식으로 들어오는
 
 var indexRouter = require('./routes/index');
 var topicRouter = require('./routes/topic');
-var authRouter = require('./routes/auth');
+var authRouter = require('./routes/auth')(passport); // auth.js 자체가 함수로 기능. 파라미터에 passport 주입. router로 return
 
 app.use('/', indexRouter);
 app.use('/topic', topicRouter); // /topic으로 시작하는 주소들에게 topicRouter라는 middleware를 적용

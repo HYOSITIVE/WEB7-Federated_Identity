@@ -1,3 +1,0 @@
-// Last Modification : 2021.
-// by HYOSITIVE
-// based on WEB5 - Passport
