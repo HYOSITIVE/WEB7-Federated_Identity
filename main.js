@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 4.1
+// based on WEB5 - Passport_REWORK - 4.2
 
 const port = 3000
 var express = require('express')
@@ -32,6 +32,12 @@ app.use(session({ // session middleware
 	store:new FileStore()
 }))
 
+var authData = {
+	email:'hyositive_test@gmail.com',
+	password:'111111',
+	nickname:'hyositive'
+}
+
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
@@ -41,19 +47,23 @@ passport.use(new LocalStrategy( // Form 데이터 도착지점
 		passwordField: 'pwd'
 
 	},
-  function(username, password, done) {
+  function(username, password, done) { // done이 어떻게 호출되느냐에 따라 로그인 성공, 실패 여부를 판별
 	  console.log('LocalStrategy', username, password);
-
-    /*User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });*/
+	  if(username === authData.email) {
+		  console.log(1);
+		  if (password === authData.password) { // 로그인 성공 : done 함수에 사용자 정보
+			console.log(2);
+			return done(null, user);
+		  }
+		  else { // 로그인 실패(이메일 일치, 패스워드 불일치) : done 함수에 false, 에러 메세지
+			console.log(3);
+			return done(null, false, { message: 'Incorrect password.' });
+		  }
+	  }
+	  else { // 로그인 실패(이메일 불일치) : done 함수의 두 번째 인자에 false, 에러 메세지
+		console.log(4);
+		return done(null, false, { message: 'Incorrect username.' });
+	  }
   }
 ));
 

@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 3
+// based on WEB5 - Passport_REWORK - 4.2
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -8,12 +8,6 @@ var path = require('path');
 var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
-
-var authData = {
-	email:'hyositive_test@gmail.com',
-	password:'111111',
-	nickname:'hyositive'
-}
 
 router.get('/login', function(request, response) {
 	var title = 'WEB - login';
