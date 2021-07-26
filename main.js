@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 4.2
+// based on WEB5 - Passport_REWORK - 5.1
 
 const port = 3000
 var express = require('express')
@@ -41,6 +41,19 @@ var authData = {
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
+app.use(passport.initialize()); // express에 passport middleware 설치. express가 호출될 때마다 passport가 개입
+app.use(passport.session()); // passport 인증 시 session을 내부적으로 사용
+
+passport.serializeUser(function(user, done) {
+	// done(null, user.id);
+  });
+  
+  passport.deserializeUser(function(id, done) {
+	// User.findById(id, function(err, user) {
+	//   done(err, user);
+	// });
+  });
+
 passport.use(new LocalStrategy( // Form 데이터 도착지점
 	{ // Passport는 기본적으로(default) Form 형식으로 username, password 데이터를 받는다. 이를 변경하려면 callback 함수 이전에 객체를 생성해 명시적으로 지정해주어야 한다.
 		usernameField: 'email',
@@ -53,7 +66,7 @@ passport.use(new LocalStrategy( // Form 데이터 도착지점
 		  console.log(1);
 		  if (password === authData.password) { // 로그인 성공 : done 함수에 사용자 정보
 			console.log(2);
-			return done(null, user);
+			return done(null, authData);
 		  }
 		  else { // 로그인 실패(이메일 일치, 패스워드 불일치) : done 함수에 false, 에러 메세지
 			console.log(3);
