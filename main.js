@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 6
+// based on WEB5 - Passport_REWORK - 8
 
 const port = 3000
 var express = require('express')
@@ -10,8 +10,9 @@ var bodyParser = require('body-parser');
 var compression = require('compression');
 var helmet = require('helmet');
 app.use(helmet());
-var session = require('express-session')
-var FileStore = require('session-file-store')(session) // 실제로는 데이터베이스에 저장하는 것이 바람직함
+var session = require('express-session');
+var FileStore = require('session-file-store')(session); // 실제로는 데이터베이스에 저장하는 것이 바람직함
+var flash = require('connect-flash');
 
 app.use(express.static('public')); // public directory 안에서 static file을 찾겠다는 의미. public 폴더 안의 파일은 url을 통해 접근 가능
 
@@ -31,6 +32,20 @@ app.use(session({ // session middleware
   saveUninitialized: true, // 세션이 필요하기 전까지는 세션을 구동시키지 않는다
 	store:new FileStore()
 }))
+
+app.use(flash());
+app.get('/flash', function(req, res){
+	// Set a flash message by passing the key, followed by the value, to req.flash().
+	req.flash('msg', 'Flash is back!!'); // 세션 스토어에 입력 데이터를 추가
+	res.send('flash');
+  });
+   
+app.get('/flash-display', function(req, res){
+	// Get an array of flash messages by passing the key to req.flash()
+	var fmsg = req.flash();
+	console.log(fmsg);
+	res.send(fmsg);
+  });
 
 var authData = {
 	email:'hyositive_test@gmail.com',
