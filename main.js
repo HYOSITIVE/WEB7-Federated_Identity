@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 5.3
+// based on WEB5 - Passport_REWORK - 6
 
 const port = 3000
 var express = require('express')
@@ -56,7 +56,7 @@ passport.deserializeUser(function(id, done) {
 	// callback 함수의 첫 번째 인자로 세션 데이터로부터 식별자 주입(id)
 	// 사용자 데이터가 저장된 곳(DB 또는 로컬)에서 실제 데이터 조회(authData)
 	// 세션으로부터 받아 온 데이터(id)와 DB에 저장된 데이터(authData)를 비교, 사용자 유무 판별
-	// 이 예제에서는 비교 과정 생략하고(사용자 존재한다고 가정), 바로 done의 두 번째 인자에 authData 주입
+	// 이 예제에서는 비교 과정 생략하고(사용자 존재한다고 가정), 바로 done의 두 번째 인자에 사용자 정보(authData) 주입
 	done(null, authData);
 });
 
