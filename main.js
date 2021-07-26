@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.26
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 5.2
+// based on WEB5 - Passport_REWORK - 5.3
 
 const port = 3000
 var express = require('express')
@@ -44,22 +44,20 @@ var passport = require('passport')
 app.use(passport.initialize()); // express에 passport middleware 설치. express가 호출될 때마다 passport가 개입
 app.use(passport.session()); // passport 인증 시 session을 내부적으로 사용
 
-passport.serializeUser(function(user, done) { // 로그인에 성공했을 때, serializeUser 메소드의 callback 함수 호출
+// 사용자가 로그인에 성공했을 때 1회만 호출되어 사용자 정보를 session store에 저장
+passport.serializeUser(function(user, done) {
 	console.log('serializeUser', user);
 	done(null, user.email); // done의 두 번째 인자로 사용자 식별자(이메일) 주입. 주입된 데이터는 세션 데이터에 저장
-	// done(null, user.id);
 });
-  
-passport.deserializeUser(function(id, done) { // 페이지에 방문할 때마다 deserializeUser의 callback 함수 호출
+
+// 사용자가 페이지에 방문할 때마다 호출되어 사용자 정보 조회
+passport.deserializeUser(function(id, done) {
 	console.log('deserializeUser', id);
 	// callback 함수의 첫 번째 인자로 세션 데이터로부터 식별자 주입(id)
 	// 사용자 데이터가 저장된 곳(DB 또는 로컬)에서 실제 데이터 조회(authData)
 	// 세션으로부터 받아 온 데이터(id)와 DB에 저장된 데이터(authData)를 비교, 사용자 유무 판별
 	// 이 예제에서는 비교 과정 생략하고(사용자 존재한다고 가정), 바로 done의 두 번째 인자에 authData 주입
-	done(null, authData) 
-	// User.findById(id, function(err, user) {
-	//   done(err, user);
-	// });
+	done(null, authData);
 });
 
 passport.use(new LocalStrategy( // Form 데이터 도착 지점
@@ -88,10 +86,10 @@ passport.use(new LocalStrategy( // Form 데이터 도착 지점
   }
 ));
 
+// 사용자가 로그인을 전송했을 때, passport가 그 로그인 데이터를 처리하기 위한 코드
 // 세션 저장 전 리다이렉션을 방지하기 위해 로그인 성공 시 callback 함수를 호출해 명시적으로 세션 저장 후 리다이렉션
 // PM2, nodemon 등의 툴에서 watch 기능을 사용할 경우, 세션 파일 변경으로 서버가 재시작 될 수 있으므로, 명시적으로 sessions 디렉토리를 watch-ignore 해 준다.
 // function(param) {} === (param) => {}
-// 사용자가 로그인을 전송했을 때, passport가 그 로그인 데이터를 처리하기 위한 코드
 app.post('/auth/login_process', // 인증 정보를 받는 경로
 passport.authenticate('local', {failureRedirect : '/auth/login'}) , (req, res) => {
 	req.session.save( () => {
