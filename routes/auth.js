@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.27
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 3
+// based on WEB6 - MultiUserAuth - 4.1
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -8,6 +8,13 @@ var path = require('path');
 var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
+
+// lowdb 로드
+var low = require('lowdb');
+var FileSync = require('lowdb/adapters/FileSync');
+var adapter = new FileSync('db.json');
+var db = low(adapter);
+db.defaults({users:[]}).write(); // 기본적으로 users에 데이터 저장
 
 module.exports = function(passport) {
 	router.get('/login', function(request, response) {
@@ -44,16 +51,30 @@ module.exports = function(passport) {
 		var list = template.list(request.list);
 		var html = template.HTML(title, list, `
 			<form action="/auth/register_process" method="post">
-				<p><input type ="text" name="email" placeholder="email"></p>
-				<p><input type ="password" name="pwd" placeholder="password"></p>
-				<p><input type ="password" name="pwd2" placeholder="password"></p>
-				<p><input type ="text" name="displayName" placeholder="display name"></p>
+				<p><input type ="text" name="email" placeholder="email" value="hyositive_test@gmail.com"></p>
+				<p><input type ="password" name="pwd" placeholder="password" value="111111"></p>
+				<p><input type ="password" name="pwd2" placeholder="password" value="111111"></p>
+				<p><input type ="text" name="displayName" placeholder="display name" value="hyositive"></p>
 				<p>
 					<input type="submit" value="register">
 				</p>
 			</form>
 		`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
 		response.send(html);
+	});
+
+	router.post('/register_process', function(request, response) {
+		var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
+		var email = post.email;
+		var pwd = post.pwd;
+		var pwd2 = post.pwd2;
+		var displayName = post.displayName;
+		db.get('users').push({
+			email:email,
+			password:pwd,
+			displayName:displayName
+		}).write();
+		response.redirect('/');
 	});
 	
 	router.get('/logout', function(request, response) {

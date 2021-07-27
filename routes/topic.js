@@ -37,7 +37,6 @@ router.post('/create_process', function(request, response) {
 		return false;
 	}
 	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
-	console.log(post);
 	var title = post.title;
 	var description = post.description;
 	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
