@@ -1,6 +1,6 @@
-// Last Modification : 2021.07.26
+// Last Modification : 2021.07.27
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 10
+// based on WEB6 - MultiUserAuth - 3
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -37,6 +37,23 @@ module.exports = function(passport) {
 			req.session.save( () => {
 				res.redirect('/')
 			})
+	});
+
+	router.get('/register', function(request, response) {
+		var title = 'WEB - register';
+		var list = template.list(request.list);
+		var html = template.HTML(title, list, `
+			<form action="/auth/register_process" method="post">
+				<p><input type ="text" name="email" placeholder="email"></p>
+				<p><input type ="password" name="pwd" placeholder="password"></p>
+				<p><input type ="password" name="pwd2" placeholder="password"></p>
+				<p><input type ="text" name="displayName" placeholder="display name"></p>
+				<p>
+					<input type="submit" value="register">
+				</p>
+			</form>
+		`, ''); // control이 존재하지 않기 때문에 argument에 공백 문자 입력
+		response.send(html);
 	});
 	
 	router.get('/logout', function(request, response) {
