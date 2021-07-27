@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.27
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 4.1
+// based on WEB6 - MultiUserAuth - 4.2
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -8,6 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
+var shortid = require('shortid');
 
 // lowdb 로드
 var low = require('lowdb');
@@ -69,12 +70,20 @@ module.exports = function(passport) {
 		var pwd = post.pwd;
 		var pwd2 = post.pwd2;
 		var displayName = post.displayName;
-		db.get('users').push({
-			email:email,
-			password:pwd,
-			displayName:displayName
-		}).write();
-		response.redirect('/');
+		// 추가 구현 : 이미 있는 사용자일 경우(DB에서 이메일 탐색), 입력되지 않은 값이 있을 경우
+		if (pwd !== pwd2) {
+			// 에러 메세지 구현하기 (flash 미사용)
+			response.redirect('/auth/register');
+		}
+		else {
+			db.get('users').push({
+				id:shortid.generate(),
+				email:email,
+				password:pwd,
+				displayName:displayName
+			}).write();
+			response.redirect('/');
+		}
 	});
 	
 	router.get('/logout', function(request, response) {
