@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/HYOSITIVE/Web2-Node#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "connect-flash": "^0.1.1",

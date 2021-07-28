@@ -11,6 +11,12 @@
       "email": "test_user@gmail.com",
       "password": "111111",
       "displayName": "test_user"
+    },
+    {
+      "id": "ZZKjrW4DF",
+      "email": "hash@gmail.com",
+      "password": "$2b$10$waU0YgmJkoXoSuq96jlRxecdzl/b4vdJkL3UD7LcVrBkqQ2qtzdzy",
+      "displayName": "hash"
     }
   ],
   "topics": [

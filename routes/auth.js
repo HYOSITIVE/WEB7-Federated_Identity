@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.28
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 5
+// based on WEB6 - MultiUserAuth - 10
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -10,6 +10,7 @@ var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
 var shortid = require('shortid');
 var db = require('../lib/db'); // db 모듈로 분리
+const bcrypt = require('bcrypt');
 
 module.exports = function(passport) {
 	router.get('/login', function(request, response) {
@@ -69,22 +70,23 @@ module.exports = function(passport) {
 			response.redirect('/auth/register');
 		}
 		else {
-			var user = {
-				id:shortid.generate(),
-				email:email,
-				password:pwd,
-				displayName:displayName
-			};
-			db.get('users').push(user).write();	// 로그인 정보 db에 저장
-			request.login(user, function(err) { // 가입 후 자동 로그인
-				// passport.authenticate는 자동으로 request.login을 호출 (from. Passport.js document)
-				// passport.authenticate에서 사용자 정보가 세션 데이터에 자동으로 저장되지 않는 오류가 있었으므로, request.login 이후에도 사용자 정보를 세션 데이터에 명시적으로 저장해준다.
-				request.session.save(function() { // session.save 사용하지 않으면 세션 데이터에 사용자 정보 저장되지 않음!!
-					console.log('redirect');
-					return response.redirect('/');
-				});
-			})
-			
+			bcrypt.hash(pwd, 10, function(err, hash) {
+				var user = {
+					id:shortid.generate(),
+					email:email,
+					password:hash, // 비밀번호 암호화
+					displayName:displayName
+				};
+				db.get('users').push(user).write();	// 로그인 정보 db에 저장
+				request.login(user, function(err) { // 가입 후 자동 로그인
+					// passport.authenticate는 자동으로 request.login을 호출 (from. Passport.js document)
+					// passport.authenticate에서 사용자 정보가 세션 데이터에 자동으로 저장되지 않는 오류가 있었으므로, request.login 이후에도 사용자 정보를 세션 데이터에 명시적으로 저장해준다.
+					request.session.save(function() { // session.save 사용하지 않으면 세션 데이터에 사용자 정보 저장되지 않음!!
+						console.log('redirect');
+						return response.redirect('/');
+					});
+				})
+			});
 		}
 	});
 	
