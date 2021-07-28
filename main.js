@@ -1,6 +1,6 @@
-// Last Modification : 2021.07.26
+// Last Modification : 2021.07.28
 // by HYOSITIVE
-// based on WEB5 - Passport_REWORK - 10
+// based on WEB6 - MultiUserAuth - 8
 
 const port = 3000
 var express = require('express')
@@ -13,6 +13,7 @@ app.use(helmet());
 var session = require('express-session');
 var FileStore = require('session-file-store')(session); // 실제로는 데이터베이스에 저장하는 것이 바람직함
 var flash = require('connect-flash');
+var db = require('./lib/db');
 
 app.use(express.static('public')); // public directory 안에서 static file을 찾겠다는 의미. public 폴더 안의 파일은 url을 통해 접근 가능
 
@@ -40,10 +41,8 @@ var passport = require('./lib/passport')(app) // passport.js 자체가 함수로
 // my middleware
 // middleware의 함수는 request, response, next를 인자로 가짐
 app.get('*', function(request, response, next){ // get 방식으로 들어오는 모든 요청에 대해
-	fs.readdir('./data', function(error, filelist) {
-		request.list = filelist; // 모든 route 안에서 request 객체의 list property를 통해 목록에 접근
-		next(); // next에는 그 다음에 호출되어야 할 middleware 담김
-	});
+	request.list = db.get('topics').value(); // topics의 모든 값 로드. 실제 서비스에서는 take를 이용해 일정 숫자 지정해야 함
+	next(); // next에는 그 다음에 호출되어야 할 middleware 담김
 });
 
 var indexRouter = require('./routes/index');
