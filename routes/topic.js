@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.28
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 9
+// based on WEB6 - MultiUserAuth - 10
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -102,13 +102,6 @@ router.post('/update_process', function(request, response) {
 		title:title, description:description
 	}).write();
 	response.redirect(`/topic/${topic.id}`);
-
-	// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
-	// fs.rename(`data/${id}`, `data/${title}`, function(error) {
-	// 	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-	// 		response.redirect(`/topic/${title}`)
-	// 	});
-	// });
 });
 
 router.post('/delete_process', function(request, response) {
@@ -118,10 +111,13 @@ router.post('/delete_process', function(request, response) {
 	}
 	var post = request.body;
 	var id = post.id;
-	var	filteredId = path.parse(id).base;
-	fs.unlink(`data/${filteredId}`, function(error) {
-		response.redirect('/');
-	});
+	var topic = db.get('topics').find({id:id}).value();
+	if (topic.user_id !== request.user.id) { // 작성자가 아닌 사람이 삭제를 시도할 경우
+		// 에러 메세지
+		return response.redirect('/'); // 홈으로 튕기기
+	}
+	db.get('topics').remove({id:id}).write();
+	response.redirect('/');
 });
 
 router.get('/:pageId', function(request, response, next) {
@@ -140,7 +136,7 @@ router.get('/:pageId', function(request, response, next) {
 		` <a href="/topic/create">create</a>
 			<a href="/topic/update/${topic.id}">update</a>
 			<form action="/topic/delete_process" method="post">
-			<input type="hidden" name="id" value="${sanitizedTitle}">
+			<input type="hidden" name="id" value="${topic.id}">
 			<input type="submit" value="delete">			
 			</form>`,
 			auth.statusUI(request, response)
