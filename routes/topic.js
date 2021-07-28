@@ -1,6 +1,6 @@
 // Last Modification : 2021.07.28
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 7
+// based on WEB6 - MultiUserAuth - 9
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -56,28 +56,31 @@ router.get('/update/:pageId', function(request, response) {
 		response.redirect('/'); // 홈으로 튕기기
 		return false;
 	}
-	var	filteredId = path.parse(request.params.pageId).base;			
-	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
-		var title = request.params.pageId;
-		var list = template.list(request.list);
-		var html = template.HTML(title, list,
-			`
-			<form action="/topic/update_process" method="post">
-				<input type="hidden" name="id" value="${title}">
-				<p><input type ="text" name="title" placeholder="title" value="${title}"></p>
-				<p>
-					<textarea name="description" placeholder="description">${description}</textarea>
-				</p>
-				<p>
-					<input type="submit">
-				</p>
-			</form>
-			`,
-			`<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`,
-			auth.statusUI(request, response)
-		);
-		response.send(html);
-	});
+	var topic = db.get('topics').find({id:request.params.pageId}).value(); // 해당 topic의 상세정보를 DB에서 받아옴
+	if (topic.user_id !== request.user.id) { // 작성자가 아닌 사람이 수정을 시도할 경우
+		// 에러 메세지
+		return response.redirect('/'); // 홈으로 튕기기
+	}
+	var title = topic.title;
+	var description = topic.description;
+	var list = template.list(request.list);
+	var html = template.HTML(title, list,
+		`
+		<form action="/topic/update_process" method="post">
+			<input type="hidden" name="id" value="${topic.id}">
+			<p><input type ="text" name="title" placeholder="title" value="${title}"></p>
+			<p>
+				<textarea name="description" placeholder="description">${description}</textarea>
+			</p>
+			<p>
+				<input type="submit">
+			</p>
+		</form>
+		`,
+		`<a href="/topic/create">create</a> <a href="/topic/update/${topic.id}">update</a>`,
+		auth.statusUI(request, response)
+	);
+	response.send(html);
 });
 
 router.post('/update_process', function(request, response) {
@@ -89,12 +92,23 @@ router.post('/update_process', function(request, response) {
 	var id = post.id;
 	var title = post.title;
 	var description = post.description;
+	var topic = db.get('topics').find({id:id}).value();
+	if (topic.user_id !== request.user.id) { // 작성자가 아닌 사람이 수정을 시도할 경우
+		// 에러 메세지
+		return response.redirect('/'); // 홈으로 튕기기
+	}
+	// 접근 제어 상에 문제가 없을 경우
+	db.get('topics').find({id:id}).assign({
+		title:title, description:description
+	}).write();
+	response.redirect(`/topic/${topic.id}`);
+
 	// 기존 파일명(id), 새 파일명(title)을 활용해 파일명 변경. 내용 변경을 위해 callback 함수 호출
-	fs.rename(`data/${id}`, `data/${title}`, function(error) {
-		fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-			response.redirect(`/topic/${title}`)
-		});
-	});
+	// fs.rename(`data/${id}`, `data/${title}`, function(error) {
+	// 	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
+	// 		response.redirect(`/topic/${title}`)
+	// 	});
+	// });
 });
 
 router.post('/delete_process', function(request, response) {
@@ -124,7 +138,7 @@ router.get('/:pageId', function(request, response, next) {
 		${sanitizedDescription}
 		<p>by ${user.displayName}</p>`,
 		` <a href="/topic/create">create</a>
-			<a href="/topic/update/${sanitizedTitle}">update</a>
+			<a href="/topic/update/${topic.id}">update</a>
 			<form action="/topic/delete_process" method="post">
 			<input type="hidden" name="id" value="${sanitizedTitle}">
 			<input type="submit" value="delete">			
