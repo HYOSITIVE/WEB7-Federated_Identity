@@ -1,6 +1,6 @@
-// Last Modification : 2021.06.02
+// Last Modification : 2021.07.28
 // by HYOSITIVE
-// based on WEB4 - Express - Session & Auth - 6.7
+// based on WEB6 - MultiUserAuth - 7
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -9,6 +9,8 @@ var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
 var auth = require('../lib/auth.js');
+var db = require('../lib/db');
+var shortid = require('shortid');
 
 router.get('/create', function(request, response) {
 	if(!auth.isOwner(request, response)) {
@@ -39,9 +41,14 @@ router.post('/create_process', function(request, response) {
 	var post = request.body; // bodyParser가 내부적으로 작동. callback 함수의 request의 body property에 parsing한 내용을 저장
 	var title = post.title;
 	var description = post.description;
-	fs.writeFile(`data/${title}`, description, 'utf-8', function(err) {
-		response.redirect(`/topic/${title}`);
-	});
+	var id = shortid.generate();
+	db.get('topics').push({ // 데이터를 DB에 저장
+		id:id,
+		title:title,
+		description:description,
+		user_id:request.user.id
+	}).write();
+	response.redirect(`/topic/${id}`);
 });
 
 router.get('/update/:pageId', function(request, response) {
@@ -103,33 +110,28 @@ router.post('/delete_process', function(request, response) {
 	});
 });
 
-// 'topic'은 예약어로 사용되므로, /topic으로 접속했을 때에는 topic이라는 제목의 페이지를 탐색하지 않음
 router.get('/:pageId', function(request, response, next) {
-	var	filteredId = path.parse(request.params.pageId).base;
-	fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
-		if (err) {
-			next(err);
-		}
-		else {
-			var title = request.params.pageId;
-			var sanitizedTitle = sanitizeHtml(title);
-			var sanitizedDescription = sanitizeHtml(description, {
-				allowedTags:['h1']
-			});
-			var list = template.list(request.list);
-			var html = template.HTML(sanitizedTitle, list,
-				`<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
-				` <a href="/topic/create">create</a>
-				  <a href="/topic/update/${sanitizedTitle}">update</a>
-				  <form action="/topic/delete_process" method="post">
-				    <input type="hidden" name="id" value="${sanitizedTitle}">
-				    <input type="submit" value="delete">			
-				  </form>`,
-				  auth.statusUI(request, response)
-			);
-			response.send(html)
-		}
+	var topic = db.get('topics').find({id:request.params.pageId}).value();
+	var user = db.get('users').find({id:topic.user_id}).value();
+	var sanitizedTitle = sanitizeHtml(topic.title);
+	var sanitizedDescription = sanitizeHtml(topic.description, {
+		allowedTags:['h1']
 	});
+	var list = template.list(request.list);
+	var html = template.HTML(sanitizedTitle, list,
+		`
+		<h2>${sanitizedTitle}</h2>
+		${sanitizedDescription}
+		<p>by ${user.displayName}</p>`,
+		` <a href="/topic/create">create</a>
+			<a href="/topic/update/${sanitizedTitle}">update</a>
+			<form action="/topic/delete_process" method="post">
+			<input type="hidden" name="id" value="${sanitizedTitle}">
+			<input type="submit" value="delete">			
+			</form>`,
+			auth.statusUI(request, response)
+	);
+	response.send(html)
 });
 
 module.exports = router;
