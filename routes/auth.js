@@ -1,6 +1,6 @@
-// Last Modification : 2021.07.27
+// Last Modification : 2021.07.28
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 4.2
+// based on WEB6 - MultiUserAuth - 5
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -9,13 +9,7 @@ var fs = require('fs');
 var sanitizeHtml = require('sanitize-html');
 var template = require('../lib/template.js');
 var shortid = require('shortid');
-
-// lowdb 로드
-var low = require('lowdb');
-var FileSync = require('lowdb/adapters/FileSync');
-var adapter = new FileSync('db.json');
-var db = low(adapter);
-db.defaults({users:[]}).write(); // 기본적으로 users에 데이터 저장
+var db = require('../lib/db'); // db 모듈로 분리
 
 module.exports = function(passport) {
 	router.get('/login', function(request, response) {
@@ -39,8 +33,7 @@ module.exports = function(passport) {
 	// function(param) {} === (param) => {}
 	router.post('/login_process', // 인증 정보를 받는 경로
 		passport.authenticate('local', {
-			failureRedirect : '/auth/login',
-			failureFlash: true	
+			failureRedirect : '/auth/login'
 		}) , (req, res) => {
 			req.session.save( () => {
 				res.redirect('/')
@@ -71,18 +64,27 @@ module.exports = function(passport) {
 		var pwd2 = post.pwd2;
 		var displayName = post.displayName;
 		// 추가 구현 : 이미 있는 사용자일 경우(DB에서 이메일 탐색), 입력되지 않은 값이 있을 경우
-		if (pwd !== pwd2) {
+		if (pwd !== pwd2) { // 비밀번호 확인 불일치
 			// 에러 메세지 구현하기 (flash 미사용)
 			response.redirect('/auth/register');
 		}
 		else {
-			db.get('users').push({
+			var user = {
 				id:shortid.generate(),
 				email:email,
 				password:pwd,
 				displayName:displayName
-			}).write();
-			response.redirect('/');
+			};
+			db.get('users').push(user).write();	// 로그인 정보 db에 저장
+			request.login(user, function(err) { // 가입 후 자동 로그인
+				// passport.authenticate는 자동으로 request.login을 호출 (from. Passport.js document)
+				// passport.authenticate에서 사용자 정보가 세션 데이터에 자동으로 저장되지 않는 오류가 있었으므로, request.login 이후에도 사용자 정보를 세션 데이터에 명시적으로 저장해준다.
+				request.session.save(function() { // session.save 사용하지 않으면 세션 데이터에 사용자 정보 저장되지 않음!!
+					console.log('redirect');
+					return response.redirect('/');
+				});
+			})
+			
 		}
 	});
 	

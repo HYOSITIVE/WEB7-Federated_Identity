@@ -1,11 +1,11 @@
-passport-local 인증 과정
+passport-local 인증 과정 (lowdb 적용)
 
 1. /auth/login에서 사용자 정보 입력, 입력된 정보는 form 형식으로 /auth/login_process로 전송
 2. /auth/login_process의 passport.authenticate 메소드 실행. local 방식이라고 명시되어 있으므로, local strategy 메소드 실행
 3. local strategy 메소드 (passport.use(new LocalStrategy))에 form 데이터 전송. callback 함수에서 전송된 데이터와 authData 비교
 4. 로그인 성공 시, done의 두 번째 인자에 authData 주입 (로그인 실패 시, done의 두 번째 인자에 false 주입)
 5. 주입된 사용자 정보는 serializeUser의 callback 함수의 첫 번째 인자(user)로 주입
-6. serializeUser의 callback 함수에서 사용자 식별자(user.email)를 추출해 done의 두 번째 인자로  주입. 주입된 식별자는 세션 데이터의 passport의 user 값으로 저장
+6. serializeUser의 callback 함수에서 사용자 식별자(user.id)를 추출해 done의 두 번째 인자로 주입. 주입된 식별자는 세션 데이터의 passport의 user 값으로 저장
 7. 페이지에 방문할 때, deserializeUser의 callback 함수의 첫 번째 인자(id)에 세션 데이터로부터 식별자 주입
-8. deserializeUser의 callback 함수에서, 식별자를 이용해 데이터베이스 조회, 사용자 유무 판별. 세션으로부터 받은 데이터(id)와, DB 데이터(authData)의 email이 일치 할 경우, 사용자 존재
-9. 사용자가 존재 할 경우, deserializeUser의 callback 함수에서 done의 인자로 사용자 정보(authData) 주입. 이 사용자 정보는 request.user 객체에 전달
+8. deserializeUser의 callback 함수에서, 식별자를 이용해 데이터베이스 조회, 세션으로부터 받은 id가 DB 데이터에 존재 할 경우, 사용자 정보를 user에 삽입
+9. deserializeUser의 callback 함수에서 done의 인자로 DB로부터 가져 온 사용자 정보(user) 주입. 이 사용자 정보는 request.user 객체에 전달
