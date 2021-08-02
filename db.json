@@ -1,37 +1,12 @@
 {
   "users": [
     {
-      "id": "ZZKjrW4DF",
-      "email": "hash@gmail.com",
-      "password": "$2b$10$waU0YgmJkoXoSuq96jlRxecdzl/b4vdJkL3UD7LcVrBkqQ2qtzdzy",
-      "displayName": "hash"
-    },
-    {
-      "id": "3fhNWva2A",
-      "email": "hyositive_test@gmail.com",
-      "password": "$2b$10$8vClNORhN17adPSmybxD8uhePgJxPdOkcKj2W.AY2OBqUe7ZghoQW",
-      "displayName": "hyositive_test"
-    },
-    {
-      "id": "E6WCwX-Cb",
+      "id": "gEWNrK3HI",
       "email": "lux1937@gmail.com",
-      "password": "$2b$10$Ys/eVjcGcD8V0tFAkLg/Au5hJjbuM7W392Zvavq3alyKE3pxNK912",
       "displayName": "hyositive",
-      "googleId": "102612122498866485387"
+      "googleId": "102612122498866485387",
+      "password": "$2b$10$o25d8cacTPyCZUdZHXEDDOXt83IbN.HeuJtvnCjGMAz/jYr0bVEY2"
     }
   ],
-  "topics": [
-    {
-      "id": "GQbRanPBt",
-      "title": "Multi User",
-      "description": "test!",
-      "user_id": "-4GQUJMkr"
-    },
-    {
-      "id": "exW-vMBCR",
-      "title": "test",
-      "description": "test",
-      "user_id": "-4GQUJMkr"
-    }
-  ]
+  "topics": []
 }

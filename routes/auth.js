@@ -1,6 +1,6 @@
-// Last Modification : 2021.07.28
+// Last Modification : 2021.08.02
 // by HYOSITIVE
-// based on WEB6 - MultiUserAuth - 10
+// based on WEB7 - Passport_Google - 6.2
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return
@@ -71,13 +71,22 @@ module.exports = function(passport) {
 		}
 		else {
 			bcrypt.hash(pwd, 10, function(err, hash) {
-				var user = {
-					id:shortid.generate(),
-					email:email,
-					password:hash, // 비밀번호 암호화
-					displayName:displayName
-				};
-				db.get('users').push(user).write();	// 로그인 정보 db에 저장
+				var user = db.get('users').find({email:email}).value(); // 동일 이메일을 사용하는 사용자 존재하는지 확인
+				if (user) { // 이미 존재하는 이메일 : 사용자 존재
+					user.password = hash;
+					user.displayName = displayName;
+					db.get('users').find({id:user.id}).assign(user).write(); // DB 정보 갱신
+				}
+				else { // 존재하지 않는 이메일
+					var user = {
+						id:shortid.generate(),
+						email:email,
+						password:hash, // 비밀번호 암호화
+						displayName:displayName
+					};
+					db.get('users').push(user).write();	// 로그인 정보 db에 저장
+				}
+				
 				request.login(user, function(err) { // 가입 후 자동 로그인
 					// passport.authenticate는 자동으로 request.login을 호출 (from. Passport.js document)
 					// passport.authenticate에서 사용자 정보가 세션 데이터에 자동으로 저장되지 않는 오류가 있었으므로, request.login 이후에도 사용자 정보를 세션 데이터에 명시적으로 저장해준다.
