@@ -1,6 +1,6 @@
 // Last Modification : 2021.08.02
 // by HYOSITIVE
-// based on WEB7 - Passport_Google - 6.2
+// based on WEB7 - Passport_Google - 8
 
 var express = require('express');
 var router = express.Router(); // Router 메소드 호출 시 router라는 객체 return, main.js에서 express라는 모듈 자체는 app이라는 객체를 return

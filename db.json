@@ -1,10 +1,11 @@
 {
   "users": [
     {
-      "id": "3g4Bl6HlJ",
+      "id": "Enl0EGQFv",
       "email": "lux1937@gmail.com",
-      "displayName": "주효식",
-      "facebookId": "2888213721433963"
+      "displayName": "hyositive",
+      "facebookId": "2888213721433963",
+      "password": "$2b$10$WwHGOrcIDHBquT48czDX7.DmKhdHoHj39kf5O0GdMAqrbc4kH.Bya"
     }
   ],
   "topics": []
