@@ -1,8 +1,10 @@
-Google Developer Console을 통해 서비스 생성. client ID, client secret 발급, redirect URL 설정
+passport - federated identity 인증 과정
+
+Google Developer Console / Facebook Developer을 통해 서비스 생성. client ID, client secret 발급, redirect URL 설정
 Console(Passport)에 client ID, client secret, redirect URL 제공
 Resource Server, Resource Owner에게 로그인 요구 (인증)
 Resource Server, Resource Owner에게 특정 기능의 권한을 Client에게 승인 할 지 여부 확인 (Scope 확인)
-Resource Owner 승인 시, Resource Server는 내부적으로 user_id, scope 값 저장, 권한 인식(user_id는 Client_id에게 scope의 기능을 허용)
+Resource Owner 승인 시, Resource Server는 내부적으로 user_id, scope 값 저장, 권한 인식(user_id는 client_id에게 scope의 기능을 허용)
 Resource Server가 authorization code(임시 비밀번호) 생성, Resource Owner에게 전달(Header의 Location)
 Resource Owner, 자동으로 authorization code 값을 가지고 다시 Client로 접속(리다이렉션). Client에게 authorization code 전달
 Client가 Resource Server에 접속해 자신의 authorization code, client ID, client secret 직접 전달 (Passport가 은밀하게 실행)
