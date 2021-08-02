@@ -1,3 +1,4 @@
 goorm.manifest
 sessions/
 config/google.json
+config/facebook.json
